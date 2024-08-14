@@ -1,0 +1,26 @@
+.container {
+    height: 100vh;
+    padding: 5rem;
+    box-sizing: border-box;
+}
+
+.brands > svg{
+    color: white;
+    font-size: 3rem;
+    transition: color 0.5s;
+
+}
+
+.brands > svg:hover{
+    color: rgb(226, 12, 12);
+}
+
+ .courses{
+    width: 250px;
+    margin-bottom: 1rem;
+    transition: all 0.5s;
+}
+
+.courses:hover{
+    transform: translateY(-10px);
+} 

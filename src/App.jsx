@@ -1,0 +1,66 @@
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import Home from './Components/Home/Home';
+import SignUp from './Components/Auth/SignUp';
+import SignIn from './Components/Auth/SignIn';
+import ForgetPassword from './Components/Auth/ForgetPassword';
+import Profile from './Components/Profile/Profile';
+import UpdateProfile from './Components/Profile/UpdateProfile';
+import ChangePassword from './Components/Profile/ChangePassword';
+import Page from './Components/Page';
+import AddServerMembers from './Components/AddMembers/AddServerMembers';
+
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>; // Replace this with a spinner or loading component
+  }
+
+  return (
+    <Router>
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/mypage' element={<Page />} />
+        <Route 
+          path='/signup' 
+          element={!isAuthenticated ? <SignUp /> : <Navigate to="/mypage" replace />} 
+        />
+        <Route 
+          path='/signin' 
+          element={!isAuthenticated ? <SignIn /> : <Navigate to="/mypage" replace />} 
+        />
+        <Route 
+          path='/forget-password' 
+          element={!isAuthenticated ? <ForgetPassword /> : <Navigate to="/profile" replace />} 
+        />
+        <Route 
+          path='/profile' 
+          element={isAuthenticated ? <Profile /> : <Navigate to="/signin" replace />} 
+        />
+        <Route 
+          path='/updateprofile' 
+          element={isAuthenticated ? <UpdateProfile /> : <Navigate to="/signin" replace />} 
+        />
+        <Route 
+          path='/changepassword' 
+          element={isAuthenticated ? <ChangePassword /> : <Navigate to="/signin" replace />} 
+        />
+         <Route path="/server/:serverId" element={<AddServerMembers />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
