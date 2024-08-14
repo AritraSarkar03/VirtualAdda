@@ -25,7 +25,7 @@ function Home() {
   return (
     <VStack>
     <Header isAuthenticated={isAuthenticated} user={user} />
-      <Text>Home</Text>
+      <Text>Home Sweet Home</Text>
     </VStack>
   )
 }
