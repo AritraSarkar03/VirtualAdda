@@ -265,7 +265,21 @@ function Server({ onSelectServer }) {
             </Button>
         </Tooltip>
       </Flex>
-
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+      >
+          <Tooltip label={'Profile'} placement="right" >
+            <Avatar
+              src={user.avatar}
+              objectFit="cover"
+              onClick={() => handleButtonClick(item.id)}
+              bg={buttonBgColor}
+              mb={2}
+            />
+          </Tooltip>
+      </Box>
       <RegisterServerModal isOpen={isOpen} onClose={onClose} />
     </Box>
   );
