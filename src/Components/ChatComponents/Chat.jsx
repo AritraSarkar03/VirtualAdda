@@ -284,7 +284,7 @@ const Chat = ({ channel }) => {
           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(e)}
           variant="outline"
           bg={inputBgColor} // Dynamic input background color
-          color="white" // Static text color
+          color={{ color: useColorModeValue('white', 'black') }} // Static text color
           borderColor={inputBorderColor} // Dynamic border color
           _placeholder={{ color: useColorModeValue('gray.700', 'gray.200') }} // Placeholder text color
         />

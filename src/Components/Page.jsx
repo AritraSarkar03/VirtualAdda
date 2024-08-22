@@ -77,12 +77,13 @@ function Page() {
       >
         <HStack
           w="100%"
+          h={ '5.5vh' }
           align="center"
           px={5}
           bg={headerBgColor}
           borderBottom="1px"
           borderColor={borderColor}
-          spacing={3}
+          // spacing={3}
         >
           {isTabletOrSmaller && (
             <Button onClick={toggleSidebar} variant="ghost">
@@ -91,7 +92,7 @@ function Page() {
           )}
           <Box
             w="full"
-            h="5.5vh"
+            h="full"
             display="flex"
             alignItems="center"
           >
@@ -101,6 +102,7 @@ function Page() {
         <Chat channel={channel} flex="1" /> {/* Ensure Chat takes up remaining space */}
       </VStack>
       {isTabletOrSmaller && !isSidebarVisible?(<ColorModeSwitcher/>):(<></>)}
+      {!isTabletOrSmaller && <ColorModeSwitcher/>}
     </HStack>
   );
 }
