@@ -100,7 +100,7 @@ function Page() {
         </HStack>
         <Chat channel={channel} flex="1" /> {/* Ensure Chat takes up remaining space */}
       </VStack>
-      <ColorModeSwitcher/>
+      {isTabletOrSmaller && !isSidebarVisible?(<ColorModeSwitcher/>):(<></>)}
     </HStack>
   );
 }

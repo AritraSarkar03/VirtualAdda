@@ -25,6 +25,7 @@ import { auth, db } from '../../firebase';
 import { doc, setDoc, getFirestore, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { getDownloadURL, ref, getStorage, uploadString } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterServerModal = ({ isOpen, onClose }) => {
   const [serverName, setServerName] = useState('');
@@ -116,6 +117,8 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
 };
 
 function Server({ onSelectServer }) {
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const bgColor = useColorModeValue('gray.200', 'gray.900');
   const buttonBgColor = useColorModeValue('gray.400', 'gray.700');
@@ -135,12 +138,12 @@ function Server({ onSelectServer }) {
   const [activeButtonId, setActiveButtonId] = useState(null);
   const auth = getAuth();
   const db = getFirestore();
+  const user = auth.currentUser;
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchData = async () => {
-      const user = auth.currentUser;
       if (user) {
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
@@ -190,6 +193,27 @@ function Server({ onSelectServer }) {
       isMounted = false;
     };
   }, [auth, db]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      setLoading(true);
+      const user = auth.currentUser;
+      if (user) {
+        const docRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        }
+      }
+      setLoading(false);
+    };
+    fetchUserData();
+  }, []);
+
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -266,20 +290,27 @@ function Server({ onSelectServer }) {
         </Tooltip>
       </Flex>
       <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-      >
-          <Tooltip label={'Profile'} placement="right" >
-            <Avatar
-              src={user.avatar}
-              objectFit="cover"
-              onClick={() => handleButtonClick(item.id)}
-              bg={buttonBgColor}
-              mb={2}
-            />
-          </Tooltip>
-      </Box>
+  display="flex"
+  flexDirection="column"
+  alignItems="center"
+  position="absolute"
+  bottom="0"
+  width="100%"
+  pb={4} // Add some padding to the bottom
+  pr={4}
+>
+  <Tooltip label={'Profile'} placement="right">
+    <Avatar
+      src={userData.avatar} // Use user.photoURL if avatar is not defined
+      size="sm" // Set the size of the avatar to 'sm'
+      objectFit="cover"
+      bg={buttonBgColor}
+      mb={2}
+      onClick={handleProfileClick} // Add the click handler here
+    />
+  </Tooltip>
+</Box>
+
       <RegisterServerModal isOpen={isOpen} onClose={onClose} />
     </Box>
   );
