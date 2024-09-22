@@ -2,100 +2,94 @@ import React, { useState, useEffect } from 'react';
 import { Stack, Text, Container, Heading, Button, Avatar, VStack, HStack, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Input, useDisclosure } from '@chakra-ui/react';
 import { auth, db } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { getAuth, updateProfile } from "firebase/auth";
+import { updateProfile } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { fileUploadCss } from '../Auth/SignUp';
+import Server from '../Server/Server';
 
 const Profile = () => {
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(false);
+  const [servers, setServers] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const user = auth.currentUser;
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       setLoading(true);
-      const user = auth.currentUser;
-      if (user) {
-        const docRef = doc(db, 'users', user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
+      try {
+        if (user) {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            setUserData(userDoc.data());
+            const serverIdsObject = userDoc.data().servers || {};
+            const serverIds = Object.values(serverIdsObject);
+            const serverPromises = serverIds.map(async (id) => {
+              const serverDoc = await getDoc(doc(db, 'servers', id));
+              return serverDoc.exists() ? serverDoc.data() : null;
+            });
+            const serverDocs = await Promise.all(serverPromises);
+            setServers(serverDocs.filter(data => data !== null));
+          }
         }
+      } catch (error) {
+        console.error('Error fetching user or servers:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    fetchUserData();
-  }, []);
+
+    fetchData();
+  }, [user]);
 
   const changeImageSubmitHandler = async (e, image) => {
     e.preventDefault();
     try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-
-      if (!user) {
-        throw new Error('No user is signed in.');
-      }
-
-      if (!image) {
-        throw new Error('No image selected.');
-      }
+      if (!user) throw new Error('No user is signed in.');
+      if (!image) throw new Error('No image selected.');
 
       const storage = getStorage();
       const storageRef = ref(storage, `profile_pictures/${user.uid}`);
       const snapshot = await uploadBytes(storageRef, image);
-
       const downloadURL = await getDownloadURL(snapshot.ref);
-      await updateProfile(user, { photoURL: downloadURL }); 
+      await updateProfile(user, { photoURL: downloadURL });
       setUserData(prev => ({ ...prev, avatar: downloadURL }));
-
     } catch (error) {
       console.error('Error updating profile picture:', error);
     }
   };
+  const navigate = useNavigate();
+  const handleButtonClick = (id) => {
+    navigate('/mypage');
+    <Server onSelectServer={id} />
+  }
 
   return (
     <Container h={'95vh'} maxW="container.lg" py="8">
       <Heading children="Profile" m="8" textTransform={'uppercase'} />
-
-      <Stack
-        justifyContent={'flex-start'}
-        direction={['column', 'row']}
-        alignItems={'center'}
-        spacing={['8', '16']}
-        padding={'8'}
-      >
+      <Stack justifyContent={'flex-start'} direction={['column', 'row']} alignItems={'center'} spacing={['8', '16']} padding={'8'}>
         <VStack>
           <Avatar src={userData.avatar} boxSize={'48'} />
           <Button isLoading={loading} onClick={onOpen} colorScheme="purple" variant="ghost">Change Photo</Button>
         </VStack>
-
         <VStack spacing={'4'} alignItems={['center', 'flex-start']}>
-          <HStack>
-            <Text fontWeight="bold">Name</Text>
-            <Text>{userData.name}</Text>
-          </HStack>
-          <HStack>
-            <Text fontWeight="bold">Email</Text>
-            <Text>{userData.email}</Text>
-          </HStack>
+          <HStack><Text fontWeight="bold">Name</Text><Text>{userData.name}</Text></HStack>
+          <HStack><Text fontWeight="bold">Email</Text><Text>{userData.email}</Text></HStack>
           <Stack direction={['column', 'row']} alignItems={'center'}>
-            <Link to={'/updateprofile'}>
-              <Button colorScheme="purple">Update Profile</Button>
-            </Link>
-            <Link to={'/changepassword'}>
-              <Button colorScheme="purple">Change Password</Button>
-            </Link>
+            <Link to={'/updateprofile'}><Button colorScheme="purple">Update Profile</Button></Link>
+            <Link to={'/changepassword'}><Button colorScheme="purple">Change Password</Button></Link>
           </Stack>
         </VStack>
       </Stack>
-      
-      <ChangePhotoBox
-        changeImageSubmitHandler={changeImageSubmitHandler}
-        isOpen={isOpen}
-        onClose={onClose}
-      />
+      <Heading children="My Servers" size={'md'} my={'8'} />
+      {servers.map((item) => (
+        <VStack key={item.id}>
+          <Avatar src={item.photoURL} objectFit="cover" onClick={() => handleButtonClick(item.id)} mb={2} />
+          <Text>{item.name}</Text>
+        </VStack>
+      ))}
+      <ChangePhotoBox changeImageSubmitHandler={changeImageSubmitHandler} isOpen={isOpen} onClose={onClose} />
     </Container>
   );
 };
@@ -133,11 +127,7 @@ const ChangePhotoBox = ({ isOpen, onClose, changeImageSubmitHandler }) => {
             <form onSubmit={(e) => changeImageSubmitHandler(e, image)}>
               <VStack spacing={'8'}>
                 {imagePrev && <Avatar src={imagePrev} boxSize={'48'} />}
-                <Input
-                  type='file'
-                  css={{'&::file-selector-button':fileUploadCss}}
-                  onChange={ChangeImage}
-                />
+                <Input type='file' css={{ '&::file-selector-button': fileUploadCss }} onChange={ChangeImage} />
                 <Button w='full' colorScheme='purple' type='submit'>Change</Button>
               </VStack>
             </form>

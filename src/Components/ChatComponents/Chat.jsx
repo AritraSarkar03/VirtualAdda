@@ -68,6 +68,7 @@ const Chat = ({ channel }) => {
   const messageBgColorReceiver = useColorModeValue('#5ABA84', '#4A9A6E'); // Message background for receiver
   const inputBgColor = useColorModeValue('white', 'gray.600'); // Input background color
   const inputBorderColor = useColorModeValue('purple', 'purple.300'); // Input border color
+  const dropdownBgColor = useColorModeValue('white', 'gray.500');
   const user = auth.currentUser;
 
   const handleSendMessage = async (e) => {
@@ -153,7 +154,7 @@ const Chat = ({ channel }) => {
       const { id } = channel;
       const editMessageRef = ref(rdb, `chats/${id}/messages/${mid}`);
       await update(editMessageRef, {
-        message: 'This message has been deleted',
+        message: '',
         edit: false
       });
     }
@@ -192,7 +193,7 @@ const Chat = ({ channel }) => {
         {messages &&
           messages.map((m, i) => (
             <React.Fragment key={m.id}>
-              {isNewTime(m.timestamp, i) && (
+              {isNewTime(m.timestamp, i, i > 0 ? new Date(messages[i - 1].timestamp) : null) && (
                 <Box
                   fontSize="sm"
                   color="gray.500"
@@ -226,16 +227,17 @@ const Chat = ({ channel }) => {
                 
 
                 <Box
+                position='relative'
                   bg={m.sender === user.uid ? messageBgColorSender : messageBgColorReceiver}
                   mx="2"
                   borderRadius="20px"
                   p="5px 15px"
                   w="fit-content"
                   maxW="60%"
-                  ml={m.sender === user.uid ? 'auto' : 'none'}
+                  ml={isSameSenderMargin(messages, m, i, user.uid)} 
                   onClick={() => handleMenuToggle(m.id)} // Toggle menu for the specific message
                 >
-                  {m.message}
+                  {m.message !== "" ? m.message : <em>This message has been deleted</em>}
                   <HStack w={'100%'} spacing={0}>
                     {m.edit === true && (
                       <Text fontSize="0.5em" color="gray.900" mr={2}>
@@ -247,16 +249,14 @@ const Chat = ({ channel }) => {
                     </Text>
                   </HStack>
 
-                  {activeMenu === m.id && (
+                  {activeMenu === m.id && m.message !== "" && (
                     <Box
                       position="absolute"
-                      border="1px solid"
-                      borderColor="gray.200"
                       borderRadius="md"
                       mt={2}
-                      bg="white"
+                      bg={dropdownBgColor}
                       boxShadow="md"
-                      zIndex="1000" // Ensure dropdown is above other elements
+                      zIndex="1000"
                     >
                       <Text px={4} py={2} cursor="pointer" onClick={() => handleEdit(m.id)}>
                         Edit

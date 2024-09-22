@@ -37,20 +37,17 @@ export const isSameUser = (messages, m, i) => {
   return i > 1 && messages[i - 1].sender === m.sender;
 };
 
-let prevtimestamp;
-export const isNewTime = (newTime, i) => {
-  if(i === 0) {
-    prevtimestamp = new Date(newTime);
+export const isNewTime = (newTime, i, prevTime) => {
+  const currentTimestamp = new Date(newTime);
+  if (i === 0) {
+    return true;
+  }
+  const currentDate = currentTimestamp.toDateString();
+  const prevDate = prevTime ? prevTime.toDateString() : null;
+
+  if (prevDate !== currentDate) {
     return true;
   } else {
-    let prevDate = prevtimestamp.toDateString();
-    const timestamp = new Date(newTime);
-    const newDate = timestamp.toDateString();
-    const isDifferent = prevDate !== newDate;
-    if (isDifferent) {
-      prevDate = newDate;
-      return true;
-    }
-    else return false;
+    return false;
   }
-}
+};
