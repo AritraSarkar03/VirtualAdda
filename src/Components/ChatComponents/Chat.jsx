@@ -21,6 +21,8 @@ import { auth, db, rdb } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { set, ref, push, onValue, off, update } from 'firebase/database';
 import { isLastMessage, isNewTime, isSameSender, isSameSenderMargin } from '../Config.js/ChatLogic';
+import OthersProfile from '../Profile/OthersProfile';
+import { useNavigate } from 'react-router-dom';
 
 export const EditMessageModal = ({ isOpen, onClose, onSubmit }) => {
   const [newMessage, setNewMessage] = useState("");
@@ -101,6 +103,7 @@ const Chat = ({ channel }) => {
 
   useEffect(() => {
     if (channel) {
+      console.log(channel);
       const { id } = channel;
       const messagesRef = ref(rdb, `chats/${id}/messages`);
 
@@ -163,6 +166,11 @@ const Chat = ({ channel }) => {
   const handleMenuToggle = (id) => {
     setActiveMenu(activeMenu === id ? null : id); // Toggle menu for the clicked message
   };
+ 
+  const navigate = useNavigate();
+  const handleViewProfile = (id) => {
+    navigate(`/otherprofile/${id}`);
+  }
 
   return (
     <HStack
@@ -216,10 +224,10 @@ const Chat = ({ channel }) => {
                   isLastMessage(messages, i, user.uid)) && (
                     <Tooltip label={m.senderName} placement="bottom-start" hasArrow>
                       <Avatar
+                        onClick={()=>handleViewProfile(m.sender)}
                         mr={1}
                         size="sm"
                         cursor="pointer"
-                        name={m.sender}
                         src={m.senderAvatar}
                       />
                     </Tooltip>

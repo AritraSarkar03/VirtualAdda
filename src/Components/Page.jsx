@@ -5,11 +5,17 @@ import Server from './Server/Server';
 import Channels from './Channels';
 import Chat from './ChatComponents/Chat';
 import { ColorModeSwitcher } from '../ColorModeSwitcher';
+import { useLocation } from 'react-router-dom';
 
 function Page() {
+  const location = useLocation();
+  const { ServerId } = location.state || {};
   const isTabletOrSmaller = useBreakpointValue({ base: true, xl: false });
   const [isSidebarVisible, setIsSidebarVisible] = useState(true); // Sidebar visibility state
-  const [serverId, setServerId] = useState(null);
+  const [serverId, setServerId] = useState(process.env.REACT_APP_DEFAULT_SERVER);
+  useEffect(() => {
+    if (ServerId) setServerId(ServerId);
+  }, [ServerId]);
   const [channel, setChannel] = useState(null); // Current selected channel
 
   const bgColor = useColorModeValue('gray.100', 'gray.900');
@@ -47,7 +53,6 @@ function Page() {
       spacing={0}
       overflow="hidden"
     >
-      {console.log(isSidebarVisible)}
       <HStack
     bg={bgColor}
     h="100%"
@@ -57,7 +62,7 @@ function Page() {
     spacing={0} // Ensure no spacing between children
     alignItems="stretch"
 >
-    <Server onSelectServer={handleServerSelect} />
+    <Server serverId = {serverId} onSelectServer={handleServerSelect} />
     <Channels serverId={serverId} onSelectChannel={handleChannelSelect} />
 </HStack>
 

@@ -13,6 +13,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalCloseButton,
+  ModalFooter,
   Divider,
   useColorModeValue,
   Flex
@@ -22,7 +23,7 @@ import { FaPlus } from 'react-icons/fa';
 import { RiCompassDiscoverFill } from "react-icons/ri";
 import { fileUploadCss } from '../Auth/SignUp';
 import { auth, db } from '../../firebase';
-import { doc, setDoc, getFirestore, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, setDoc, getFirestore, getDoc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore';
 import { getDownloadURL, ref, getStorage, uploadString } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -116,7 +117,7 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
   );
 };
 
-function Server({ onSelectServer }) {
+function Server({ serverId, onSelectServer }) {
   const navigate = useNavigate();
   const [userData, setUserData] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -125,7 +126,6 @@ function Server({ onSelectServer }) {
   const dividerColor = useColorModeValue('black', 'white');
 
   const handleButtonClick = (id) => {
-    setActiveButtonId(id);
     onSelectServer(id);
   };
 
@@ -135,43 +135,48 @@ function Server({ onSelectServer }) {
 
   const [servers, setServers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeButtonId, setActiveButtonId] = useState(null);
   const auth = getAuth();
   const db = getFirestore();
   const user = auth.currentUser;
 
   useEffect(() => {
     let isMounted = true;
-
+  
     const fetchData = async () => {
       if (user) {
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           const serverIdsObject = userDoc.data().servers || {};
           const serverIds = Object.values(serverIdsObject);
-
+  
           if (serverIds.length > 0) {
-            // Create promises to fetch server details
-            const serverPromises = serverIds.map(async (id) => {
-              const serverDoc = await getDoc(doc(db, 'servers', id));
-              if (serverDoc.exists()) {
-                return serverDoc.data();
-              } else {
-                console.warn(`Document with ID ${id} does not exist.`);
-                return null;
-              }
+            const unsubscribeFunctions = serverIds.map((id) => {
+              return onSnapshot(doc(db, 'servers', id), (serverDoc) => {
+                if (isMounted) {
+                  if (serverDoc.exists()) {
+                    const serverData = serverDoc.data();
+                    setServers(prevServers => {
+                      const updatedServers = prevServers.filter(s => s.id !== id); // Remove old data for the same server ID
+                      return [...updatedServers, { ...serverData, id }]; // Add updated data
+                    });
+                  } else {
+                    console.warn(`Document with ID ${id} does not exist.`);
+                  }
+                }
+              }, (error) => {
+                console.error(`Error listening to server with ID ${id}:`, error);
+              });
             });
-
-            // Await all promises and extract server data
-            const serverDocs = await Promise.all(serverPromises);
-            // Filter out null values
-            const serverData = serverDocs.filter(data => data !== null);
-
+  
+            // Stop loading when all snapshots are set up
             if (isMounted) {
-              // Set the fetched server data to state
-              setServers(serverData);
               setLoading(false);
             }
+  
+            // Clean up all snapshots when component unmounts or user changes
+            return () => {
+              unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+            };
           } else {
             if (isMounted) {
               setLoading(false);
@@ -179,25 +184,24 @@ function Server({ onSelectServer }) {
           }
         } catch (error) {
           console.error('Error fetching servers:', error);
-          // Handle errors appropriately, e.g., show a toast notification
           if (isMounted) setLoading(false);
         }
       } else {
         if (isMounted) setLoading(false);
       }
     };
-
+  
     fetchData();
-
+  
     return () => {
       isMounted = false;
     };
-  }, [auth, db]);
+  }, [user, db]);
+  
 
   useEffect(() => {
     const fetchUserData = async () => {
       setLoading(true);
-      const user = auth.currentUser;
       if (user) {
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
@@ -208,12 +212,67 @@ function Server({ onSelectServer }) {
       setLoading(false);
     };
     fetchUserData();
-  }, []);
-
+  }, [db, user]);
   const handleProfileClick = () => {
     navigate('/profile');
   };
-  
+  const [isAdded, setIsAdded] = useState(true);
+  const [newServer, setNewServer] = useState({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  // Check if the server is added, and fetch server data if it is not
+  useEffect(() => {
+    const checkServer = async () => {
+      console.log(servers.some((server) => server.id === serverId), serverId === process.env.REACT_APP_DEFAULT_SERVER)
+      if (!servers.some((server) => server.id === serverId) && serverId !== process.env.REACT_APP_DEFAULT_SERVER) {
+        try {
+          const serverDoc = await getDoc(doc(db, 'servers', serverId));
+
+          if (serverDoc.exists()) {
+            const serverData = serverDoc.data();
+            setNewServer(serverData);
+            setIsAdded(false); // Update `isAdded` to false
+            console.log("Server not added, isAdded set to false");
+          } else {
+            console.log("No such server exists!");
+          }
+        } catch (error) {
+          console.error("Error fetching server:", error);
+        }
+      }
+      else {
+        setIsAdded(true);
+      }
+    };
+
+    checkServer();
+  }, [serverId, servers, db]);
+
+  useEffect(() => {
+    let interval;
+    console.log("isAdded is:", isAdded);
+    if (!isAdded) {
+      setIsModalVisible(true);
+      interval = setInterval(() => {
+        setIsModalVisible(true);
+      }, 4000);
+    }
+    return () => {
+      clearInterval(interval);
+      setIsModalVisible(false); // Optionally hide the modal when `isAdded` changes
+    };
+  }, [isAdded]);
+
+  const addServer = async () => {
+    const user = auth.currentUser;
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        servers: arrayUnion(serverId)
+      });
+    } catch (e) {
+      console.log("Error adding server:", e)
+    }
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -239,12 +298,23 @@ function Server({ onSelectServer }) {
         flexDirection="column"
         alignItems="center"
       >
+        <Tooltip label={process.env.REACT_APP_DEFAULT_SERVER_NAME} placement="right">
+          <Avatar
+            src={process.env.REACT_APP_DEFAULT_SERVER_PHOTO}
+            objectFit="cover"
+            border={serverId === process.env.REACT_APP_DEFAULT_SERVER ? '2px solid purple' : 'none'}
+            onClick={() => handleButtonClick(process.env.REACT_APP_DEFAULT_SERVER)}
+            bg={buttonBgColor}
+            mb={2}
+          />
+        </Tooltip>
+        <Divider borderColor={dividerColor} mb={2} />
         {servers.map((item, index) => (
           <Tooltip label={item.name} placement="right" key={index}>
             <Avatar
               src={item.photoURL}
               objectFit="cover"
-              border={activeButtonId === item.id ? '2px solid purple' : 'none'}
+              border={serverId === item.id ? '2px solid purple' : 'none'}
               onClick={() => handleButtonClick(item.id)}
               bg={buttonBgColor}
               mb={2}
@@ -252,65 +322,88 @@ function Server({ onSelectServer }) {
           </Tooltip>
         ))}
       </Box>
+      {!isAdded &&
+        <Tooltip label={newServer.name} placement="right">
+          <Avatar
+            src={newServer.photoURL}
+            objectFit="cover"
+            border={serverId === newServer.id ? '2px solid purple' : 'none'}
+            onClick={() => handleButtonClick(newServer.id)}
+            bg={buttonBgColor}
+            mb={2}
+          />
+        </Tooltip>}
 
       {servers.length > 0 && (<Divider borderColor={dividerColor} />)}
 
       <Flex direction="column" align="center" mt={4} gap={2}>
         <Tooltip label="Add Server" placement="right">
-        
-            <Button
-              variant="unstyled"
-              onClick={handleAddServer}
-              bg={buttonBgColor}
-              borderRadius="2xl"
-              w="100%" // Full width
-              h="50px" // Full height
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-            >
+
+          <Button
+            variant="unstyled"
+            onClick={handleAddServer}
+            bg={buttonBgColor}
+            borderRadius="2xl"
+            w="100%" // Full width
+            h="50px" // Full height
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
             <FaPlus color="green" size="50%" />
           </Button>
         </Tooltip>
 
         <Tooltip label="Discover Servers" placement="right">
-        <Button
-              variant="unstyled"
-              onClick={handleAddServer}
-              bg={buttonBgColor}
-              borderRadius="2xl"
-              w="100%" // Full width
-              h="50px" // Full height
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <RiCompassDiscoverFill color="green" size="50%" />
-            </Button>
+          <Button
+            variant="unstyled"
+            onClick={handleAddServer}
+            bg={buttonBgColor}
+            borderRadius="2xl"
+            w="100%" // Full width
+            h="50px" // Full height
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <RiCompassDiscoverFill color="green" size="50%" />
+          </Button>
         </Tooltip>
       </Flex>
       <Box
-  display="flex"
-  flexDirection="column"
-  alignItems="center"
-  position="absolute"
-  bottom="0"
-  width="100%"
-  pb={4} // Add some padding to the bottom
-  pr={4}
->
-  <Tooltip label={'Profile'} placement="right">
-    <Avatar
-      src={userData.avatar} // Use user.photoURL if avatar is not defined
-      size="sm" // Set the size of the avatar to 'sm'
-      objectFit="cover"
-      bg={buttonBgColor}
-      mb={2}
-      onClick={handleProfileClick} // Add the click handler here
-    />
-  </Tooltip>
-</Box>
-
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        position="absolute"
+        bottom="0"
+        width="100%"
+        pb={4} // Add some padding to the bottom
+        pr={4}
+      >
+        <Tooltip label={'Profile'} placement="right">
+          <Avatar
+            src={userData.avatar} // Use user.photoURL if avatar is not defined
+            size="sm" // Set the size of the avatar to 'sm'
+            objectFit="cover"
+            bg={buttonBgColor}
+            mb={2}
+            onClick={handleProfileClick} // Add the click handler here
+          />
+        </Tooltip>
+      </Box>
+      <Modal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} isCentered size="sm">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Notification</ModalHeader>
+          <ModalBody>
+            <p>The server has not been added yet!</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="purple" onClick={addServer} mx={2}>Add</Button>
+            <Button colorScheme="red" onClick={() => setIsModalVisible(false)}>Close</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <RegisterServerModal isOpen={isOpen} onClose={onClose} />
     </Box>
   );

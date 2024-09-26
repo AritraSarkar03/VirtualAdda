@@ -6,7 +6,6 @@ import { updateProfile } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Link, useNavigate } from 'react-router-dom';
 import { fileUploadCss } from '../Auth/SignUp';
-import Server from '../Server/Server';
 
 const Profile = () => {
   const [userData, setUserData] = useState({});
@@ -61,8 +60,8 @@ const Profile = () => {
   };
   const navigate = useNavigate();
   const handleButtonClick = (id) => {
-    navigate('/mypage');
-    <Server onSelectServer={id} />
+    console.log(id);
+    navigate('/mypage', { state: { ServerId: id } });
   }
 
   return (

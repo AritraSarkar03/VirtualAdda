@@ -26,7 +26,7 @@ import {
   Menu,
 } from '@chakra-ui/react';
 import { auth, db } from '../../firebase';
-import { deleteDoc, doc, getDoc, setDoc, updateDoc, arrayRemove, collection } from 'firebase/firestore';
+import { deleteDoc, doc, getDoc, setDoc, updateDoc, arrayRemove, collection, arrayUnion } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadString } from 'firebase/storage';
 import { fileUploadCss } from '../Auth/SignUp';
 import { FaCrown, FaShieldAlt, FaUser } from 'react-icons/fa';
@@ -367,6 +367,19 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
 
   const handleAddFriend = async () => {
     try {
+      console.log(selectedUserId);
+      const userDocRef = doc(db, 'users', selectedUserId);
+
+      // Get the target user's document
+      const userSnapshot = await getDoc(userDocRef);
+  
+      if (userSnapshot.exists()) {
+        // Update the requests array by adding the current user's UID
+        await updateDoc(userDocRef, {
+          requests: arrayUnion(user.uid)
+        });
+        
+      }
       toast({
         title: "Request Sent",
         description: "User was asked to accept request.",
@@ -408,7 +421,7 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
                   </MenuButton>
                   {user.uid !== selectedUserId && 
                   <MenuList>
-                    <MenuItem onClick={handleAddFriend}>Add Friend</MenuItem>
+                    <MenuItem onClick={()=>handleAddFriend()}>Add Friend</MenuItem>
                   </MenuList>}
                 </Menu>
               )}

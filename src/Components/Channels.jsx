@@ -1,13 +1,48 @@
-import { Box, Button, useColorModeValue, Flex, Text } from '@chakra-ui/react';
+import {
+    Box,
+    Button,
+    useColorModeValue,
+    Flex,
+    Text,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    useDisclosure
+} from '@chakra-ui/react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import ServerSettings from './Server/ServerSettings';
+import Friend from './Server/Friend';
+
+export const FriendModal = ({ isOpen, onClose }) => {
+    return (
+        <Modal isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+                <ModalHeader>Friends</ModalHeader>
+                <ModalBody>
+                    <Friend/>
+                </ModalBody>
+                <ModalFooter>
+                    <Button colorScheme="blue" mr={3} onClick={onClose}>
+                        Close
+                    </Button>
+                </ModalFooter>
+            </ModalContent>
+        </Modal>
+    );
+};
+
 
 function Channels({ serverId, onSelectChannel }) {
     const bgColor = useColorModeValue('gray.100', 'gray.700');
     const textColor = useColorModeValue('black', 'white');
     const buttonHoverBgColor = useColorModeValue('gray.200', 'gray.600');
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     const [channels, setChannels] = useState([]);
     const [error, setError] = useState(null);
@@ -42,20 +77,20 @@ function Channels({ serverId, onSelectChannel }) {
     return (
         <Flex
             direction="column"
-            flex="1" // Take up remaining space
-            w="100%" // Ensure full width
+            flex="1"
+            w="100%"
             bg={bgColor}
             position="relative"
             overflowY="auto"
-            p={0} // Remove padding
-            m={0} // Remove margin
+            p={0}
+            m={0}
         >
             <ServerSettings serverId={serverId} />
             <Box
-                flex="1" // Take up remaining space within Channels
+                flex="1"
                 overflowY="auto"
-                p={0} // Remove padding
-                m={0} // Remove margin
+                p={0}
+                m={0}
             >
                 {error && <Text color="red.500" p={4}>{error}</Text>}
                 {channels.length > 0 ? (
@@ -77,6 +112,20 @@ function Channels({ serverId, onSelectChannel }) {
                 ) : (
                     <Box color={textColor} p={4}>No channels found.</Box>
                 )}
+                {serverId === process.env.REACT_APP_DEFAULT_SERVER &&
+                    <Button
+                        w="100%"
+                        justifyContent="flex-start"
+                        p={1}
+                        size="xs"
+                        onClick={onOpen}
+                        bg={bgColor}
+                        color={textColor}
+                        _hover={{ bg: buttonHoverBgColor }}
+                    >
+                        Friends
+                    </Button>}
+                    <FriendModal isOpen={isOpen} onClose={onClose} />
             </Box>
         </Flex>
     );

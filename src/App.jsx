@@ -10,6 +10,8 @@ import UpdateProfile from './Components/Profile/UpdateProfile';
 import ChangePassword from './Components/Profile/ChangePassword';
 import Page from './Components/Page';
 import AddServerMembers from './Components/AddMembers/AddServerMembers';
+import Friend from './Components/Server/Friend';
+import OthersProfile from './Components/Profile/OthersProfile';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -58,6 +60,7 @@ function App() {
           element={isAuthenticated ? <ChangePassword /> : <Navigate to="/signin" replace />} 
         />
          <Route path="/server/:serverId" element={<AddServerMembers />} />
+         <Route path="/otherprofile/:userID" element={<OthersProfile/>}/>
       </Routes>
     </Router>
   );
