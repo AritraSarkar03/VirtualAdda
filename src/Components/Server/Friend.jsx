@@ -1,11 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { HStack, VStack, Text, Tabs, TabList, Tab, TabPanel, TabPanels, Button, Input } from '@chakra-ui/react';
+import {
+  HStack, 
+  VStack, 
+  Text, 
+  Tabs, 
+  TabList, 
+  Tab, 
+  TabPanel, 
+  TabPanels, 
+  Button, 
+  Input,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody } from '@chakra-ui/react';
 import { auth, db, rdb } from '../../firebase';
 import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
 // import { ref } from 'firebase/storage';
 import { ref, get, set, child, serverTimestamp } from 'firebase/database';
+import { useNavigate } from 'react-router-dom';
 
-function Friend() {
+function Friend({isOpen, onClose}) {
   const [requests, setRequests] = useState([]);
   const [friends, setFriends] = useState([]);
   const [newFriendId, setNewFriendId] = useState([]);
@@ -31,8 +48,9 @@ function Friend() {
 
   // Fetch friends list
   useEffect(() => {
-    const handleFriends = async () => {
-      if (!user) return; // Ensure user is defined
+    const fetchFriendsAndRequests = async () => {
+      try {
+        if (!user) return; // Ensure user is defined
       try {
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
@@ -41,35 +59,23 @@ function Friend() {
           const friendIds = docSnap.get('friends');
           const friendData = await Promise.all(friendIds.map((uid) => fetchUserById(uid)));
           setFriends(friendData.filter(Boolean)); // Filter out null values (if any user is not found)
+          const requestIds = docSnap.get('requests');
+          const requestData = await Promise.all(requestIds.map((uid) => fetchUserById(uid)));
+          setRequests(requestData.filter(Boolean));
         }
       } catch (error) {
         console.error('Error fetching friends:', error);
       }
-    };
-
-    handleFriends();
-  }, [user]); // Only depend on user
-
-  // Fetch requests list
-  useEffect(() => {
-    const handleRequests = async () => {
-      if (!user) return; // Ensure user is defined
-      try {
-        const docRef = doc(db, 'users', user.uid);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const requestIds = docSnap.get('requests');
-          const requestData = await Promise.all(requestIds.map((uid) => fetchUserById(uid)));
-          setRequests(requestData.filter(Boolean)); // Filter out null values
-        }
       } catch (error) {
-        console.error('Error fetching requests:', error);
+        console.error('Error fetching friends or requests:', error);
       }
     };
 
-    handleRequests();
-  }, [user]); // Only depend on user
+    if (isOpen) { // Only fetch when modal is open
+      fetchFriendsAndRequests();
+    }
+  }, [isOpen, user]);
+
 
   // Accept a friend request
   const handleAcceptRequest = async (requestId) => {
@@ -126,6 +132,7 @@ function Friend() {
   };
 
   // Function to handle checking if a chat exists or creating a new one
+  const navigate = useNavigate();
   const handleFriendChat = async (friendId) => {
     const chatId = user.uid + "_" + friendId; // Create the chat ID for the current user and friend
     const altChatId = friendId + "_" + user.uid; // Alternate chat ID
@@ -157,6 +164,7 @@ function Friend() {
           setChatId(chatId); // Return the newly created chatId
         }
       }
+      navigate('/mypage', { state: { ChannelId: chatId } });
     } catch (error) {
       console.error("Error checking or creating chat:", error);
       throw error;
@@ -167,70 +175,83 @@ function Friend() {
 
 
   return (
-      <Tabs>
-        <TabList>
-          <Tab>Friends</Tab>
-          <Tab>Pending Requests</Tab>
-          <Tab>Add Friend</Tab>
-        </TabList>
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Friends</ModalHeader>
+        <ModalBody>
+          <Tabs>
+            <TabList>
+              <Tab>Friends</Tab>
+              <Tab>Pending Requests</Tab>
+              <Tab>Add Friend</Tab>
+            </TabList>
 
-        <TabPanels>
-          {/* Friends Tab */}
-          <TabPanel>
-            {friends.length > 0 ? (
-              friends.map((friend, index) => (
-                <HStack key={index} spacing={4} justify="space-between">
-                  <Button variant="ghost" onClick={() => handleFriendChat(friend.id)}>
-                    {friend.name}
-                  </Button>
-                  <Button variant='ghost' colorScheme="red" onClick={() => handleRemoveFriend(friend.id)}>
-                    Remove
-                  </Button>
-                </HStack>
-              ))
-            ) : (
-              <Text>No friends found</Text>
-            )}
-          </TabPanel>
+            <TabPanels>
+              {/* Friends Tab */}
+              <TabPanel>
+                {friends.length > 0 ? (
+                  friends.map((friend, index) => (
+                    <HStack key={index} spacing={4} justify="space-between">
+                      <Button variant="ghost" onClick={() => handleFriendChat(friend.id)}>
+                        {friend.name}
+                      </Button>
+                      <Button variant='ghost' colorScheme="red" onClick={() => handleRemoveFriend(friend.id)}>
+                        Remove
+                      </Button>
+                    </HStack>
+                  ))
+                ) : (
+                  <Text>No friends found</Text>
+                )}
+              </TabPanel>
 
-          {/* Pending Requests Tab */}
-          <TabPanel>
-            {requests.length > 0 ? (
-              requests.map((request, index) => (
-                <HStack key={index} spacing={4} justify="space-between" mb={4}> {/* Added mb={4} for margin-bottom */}
-                  <Text>{request.name} ({request.id})</Text>
-                  <HStack spacing={2}> {/* Spacing between buttons */}
-                    <Button colorScheme="green" onClick={() => handleAcceptRequest(request.id)}>
-                      Accept
-                    </Button>
-                    <Button colorScheme="red" onClick={() => handleRemoveRequest(request.id)}>
-                      Remove
-                    </Button>
-                  </HStack>
-                </HStack>
-              ))
-            ) : (
-              <Text>No pending requests</Text>
-            )}
-          </TabPanel>
-          <TabPanel>
-            <VStack spacing={4} align="stretch">
-              <Text fontSize="lg" fontWeight="bold">Add Friend</Text>
-              <Input
-                placeholder="Enter User ID"
-                value={newFriendId}
-                onChange={(e) => setNewFriendId(e.target.value)}
-              />
-              <Button
-                colorScheme="blue"
-                onClick={handleAddFriend}
-              >
-                Add Friend
-              </Button>
-            </VStack>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+              {/* Pending Requests Tab */}
+              <TabPanel>
+                {requests.length > 0 ? (
+                  requests.map((request, index) => (
+                    <HStack key={index} spacing={4} justify="space-between" mb={4}> {/* Added mb={4} for margin-bottom */}
+                      <Text>{request.name} ({request.id})</Text>
+                      <HStack spacing={2}> {/* Spacing between buttons */}
+                        <Button colorScheme="green" onClick={() => handleAcceptRequest(request.id)}>
+                          Accept
+                        </Button>
+                        <Button colorScheme="red" onClick={() => handleRemoveRequest(request.id)}>
+                          Remove
+                        </Button>
+                      </HStack>
+                    </HStack>
+                  ))
+                ) : (
+                  <Text>No pending requests</Text>
+                )}
+              </TabPanel>
+              <TabPanel>
+                <VStack spacing={4} align="stretch">
+                  <Text fontSize="lg" fontWeight="bold">Add Friend</Text>
+                  <Input
+                    placeholder="Enter User ID"
+                    value={newFriendId}
+                    onChange={(e) => setNewFriendId(e.target.value)}
+                  />
+                  <Button
+                    colorScheme="blue"
+                    onClick={handleAddFriend}
+                  >
+                    Add Friend
+                  </Button>
+                </VStack>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </ModalBody>
+        <ModalFooter>
+          <Button colorScheme="blue" mr={3} onClick={onClose}>
+            Close
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 

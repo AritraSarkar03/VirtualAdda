@@ -269,6 +269,7 @@ function Server({ serverId, onSelectServer }) {
       await updateDoc(doc(db, "users", user.uid), {
         servers: arrayUnion(serverId)
       });
+      setIsModalVisible(false);
     } catch (e) {
       console.log("Error adding server:", e)
     }

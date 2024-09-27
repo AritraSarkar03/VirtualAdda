@@ -10,6 +10,7 @@ import { useLocation } from 'react-router-dom';
 function Page() {
   const location = useLocation();
   const { ServerId } = location.state || {};
+  const { ChannelId } = location.state || {};
   const isTabletOrSmaller = useBreakpointValue({ base: true, xl: false });
   const [isSidebarVisible, setIsSidebarVisible] = useState(true); // Sidebar visibility state
   const [serverId, setServerId] = useState(process.env.REACT_APP_DEFAULT_SERVER);
@@ -17,7 +18,10 @@ function Page() {
     if (ServerId) setServerId(ServerId);
   }, [ServerId]);
   const [channel, setChannel] = useState(null); // Current selected channel
-
+  useEffect(() => {
+    console.log(ChannelId);
+    if (ChannelId) setChannel(ChannelId);
+  }, [ChannelId]);
   const bgColor = useColorModeValue('gray.100', 'gray.900');
   const headerBgColor = useColorModeValue('white', 'gray.600');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
