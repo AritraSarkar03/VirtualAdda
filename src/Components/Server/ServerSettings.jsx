@@ -1,5 +1,6 @@
 import {
-    Button, Text, Menu,
+    Button,
+    Menu,
     MenuButton,
     MenuList,
     MenuItem,
@@ -12,6 +13,7 @@ import React, { useEffect, useState } from 'react';
 import { auth, db } from '../../firebase';
 import { FaAngleDown } from 'react-icons/fa';
 import { CreateChannelModal, InvitePeopleModal, MemberModal, EditModal, DeleteModal, LeaveModal } from './SettingFunctionality';
+import {Loader} from '../Layout/Loader';
 // Import other modals similarly
 
 function ServerSettings({ serverId }) {
@@ -128,7 +130,7 @@ function ServerSettings({ serverId }) {
                 <DeleteModal isOpen={isDeleteOpen} onClose={onDeleteClose} serverId={serverId} />
                 <MemberModal isOpen={isMemberOpen} onClose={onMemberClose} serverId={serverId} />
                 <LeaveModal isOpen={isLeaveOpen} onClose={onLeaveClose} serverId={serverId} />
-            </>): (<Text>Loading..</Text>)
+            </>): (<Loader/>)
     );
 }
 

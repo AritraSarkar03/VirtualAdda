@@ -46,9 +46,9 @@ const ForgetPassword = () => {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your Email"
           type="email"
-          focusBorderColor="purple.500"
+          focusBorderColor="blue.500"
         />
-        <Button isLoading={loading} w="full" colorScheme="purple" my="4" type="submit">
+        <Button isLoading={loading} w="full" colorScheme="blue" my="4" type="submit">
           Send Reset Link
         </Button>
       </form>

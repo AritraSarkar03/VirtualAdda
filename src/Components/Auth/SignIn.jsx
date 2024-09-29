@@ -54,7 +54,7 @@ const SignIn = () => {
               onChange={e => setEmail(e.target.value)}
               placeholder={'Enter your Email'}
               type="email"
-              focusBorderColor="purple.500"
+              focusBorderColor="blue.500"
             />
           </Box>
           <Box my={'4'}>
@@ -66,7 +66,7 @@ const SignIn = () => {
               onChange={e => setPassword(e.target.value)}
               placeholder={'Enter the Password'}
               type="password"
-              focusBorderColor="purple.500"
+              focusBorderColor="blue.500"
             />
           </Box>
           <Box>
@@ -78,13 +78,13 @@ const SignIn = () => {
               />
             </Link>
           </Box>
-          <Button colorScheme="purple" my={'4'} type="submit">
+          <Button colorScheme="blue" my={'4'} type="submit">
             Sign In
           </Button>
           <Box>
             New User?{' '}
             <Link to="/signup">
-              <Button variant={'link'} colorScheme="purple" children={'Sign Up'} />
+              <Button variant={'link'} colorScheme="blue" children={'Sign Up'} />
             </Link>{' '}
             here
           </Box>

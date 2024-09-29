@@ -129,7 +129,7 @@ const SignUp = () => {
             onChange={(e) => setName(e.target.value)}
             placeholder={'Enter your name'}
             type="text"
-            focusBorderColor="purple.500"
+            focusBorderColor="blue.500"
           />
 
           <FormLabel htmlFor="email" children={'Email Address'} />
@@ -140,7 +140,7 @@ const SignUp = () => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder={'Enter your Email'}
             type="email"
-            focusBorderColor="purple.500"
+            focusBorderColor="blue.500"
           />
 
           <FormLabel htmlFor="password" children={'Password'} />
@@ -151,7 +151,7 @@ const SignUp = () => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder={'Enter a Password'}
             type="password"
-            focusBorderColor="purple.500"
+            focusBorderColor="blue.500"
           />
 
           <Box my={'4'}>
@@ -162,18 +162,18 @@ const SignUp = () => {
               required
               id="chooseAvatar"
               type="file"
-              focusBorderColor="purple.500"
+              focusBorderColor="blue.500"
               css={fileUploadStyle}
             />
           </Box>
 
-          <Button colorScheme="purple" my={'4'} type="submit">
+          <Button colorScheme="blue" my={'4'} type="submit">
             Sign Up
           </Button>
           <Box>
             Already a member?{' '}
             <Link to="/signin">
-              <Button colorScheme="purple" variant="link">
+              <Button colorScheme="blue" variant="link">
                 Sign in
               </Button>
             </Link>{' '}

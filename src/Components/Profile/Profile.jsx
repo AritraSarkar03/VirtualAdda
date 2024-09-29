@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Stack, Text, Container, Heading, Button, Avatar, VStack, HStack, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Input, useDisclosure } from '@chakra-ui/react';
+import { Stack, Text, Container, Heading, Button, Avatar, VStack, HStack, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Input, useDisclosure, Box, Spacer, Flex, useToast } from '@chakra-ui/react';
 import { auth, db } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { updateProfile } from "firebase/auth";
+import { signOut, updateProfile } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Link, useNavigate } from 'react-router-dom';
 import { fileUploadCss } from '../Auth/SignUp';
+import { RiLogoutBoxLine } from 'react-icons/ri'
+import { useHistory } from 'react-router-dom';
 
 const Profile = () => {
   const [userData, setUserData] = useState({});
@@ -63,33 +65,62 @@ const Profile = () => {
     console.log(id);
     navigate('/mypage', { state: { ServerId: id } });
   }
+  const toast = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged out.",
+        description: "You have successfully logged out.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+
+      navigate('/signin');
+    } catch (error) {
+      console.error("Logout Error:", error);
+    }
+  };
 
   return (
-    <Container h={'95vh'} maxW="container.lg" py="8">
-      <Heading children="Profile" m="8" textTransform={'uppercase'} />
-      <Stack justifyContent={'flex-start'} direction={['column', 'row']} alignItems={'center'} spacing={['8', '16']} padding={'8'}>
-        <VStack>
-          <Avatar src={userData.avatar} boxSize={'48'} />
-          <Button isLoading={loading} onClick={onOpen} colorScheme="purple" variant="ghost">Change Photo</Button>
-        </VStack>
-        <VStack spacing={'4'} alignItems={['center', 'flex-start']}>
-          <HStack><Text fontWeight="bold">Name</Text><Text>{userData.name}</Text></HStack>
-          <HStack><Text fontWeight="bold">Email</Text><Text>{userData.email}</Text></HStack>
-          <Stack direction={['column', 'row']} alignItems={'center'}>
-            <Link to={'/updateprofile'}><Button colorScheme="purple">Update Profile</Button></Link>
-            <Link to={'/changepassword'}><Button colorScheme="purple">Change Password</Button></Link>
-          </Stack>
-        </VStack>
-      </Stack>
-      <Heading children="My Servers" size={'md'} my={'8'} />
-      {servers.map((item) => (
-        <VStack key={item.id}>
-          <Avatar src={item.photoURL} objectFit="cover" onClick={() => handleButtonClick(item.id)} mb={2} />
-          <Text>{item.name}</Text>
-        </VStack>
-      ))}
-      <ChangePhotoBox changeImageSubmitHandler={changeImageSubmitHandler} isOpen={isOpen} onClose={onClose} />
-    </Container>
+    <>
+      <Flex justifyContent="flex-end" mb="4">
+        <Button variant={'ghost'} onClick={handleLogout}>
+          <RiLogoutBoxLine style={{ marginRight: '8px' }} />
+          Log Out
+        </Button>
+      </Flex>
+      <Container h={'90vh'} maxW="container.lg" py="8">
+        <Heading children="Profile" m="8" textTransform={'uppercase'} />
+
+        <Stack justifyContent={'flex-start'} direction={['column', 'row']} alignItems={'center'} spacing={['8', '16']} padding={'8'}>
+          <VStack>
+            <Avatar src={userData.avatar} boxSize={'48'} />
+            <Button isLoading={loading} onClick={onOpen} colorScheme="blue" variant="ghost">Change Photo</Button>
+          </VStack>
+          <VStack spacing={'4'} alignItems={['center', 'flex-start']}>
+            <HStack><Text fontWeight="bold">Name</Text><Text>{userData.name}</Text></HStack>
+            <HStack><Text fontWeight="bold">Email</Text><Text>{userData.email}</Text></HStack>
+            <Stack direction={['column', 'row']} alignItems={'center'}>
+              <Link to={'/updateprofile'}><Button colorScheme="blue">Update Profile</Button></Link>
+              <Link to={'/changepassword'}><Button colorScheme="blue">Change Password</Button></Link>
+            </Stack>
+          </VStack>
+        </Stack>
+        <Heading children="My Servers" size={'md'} my={'8'} />
+        <HStack spacing={4}>
+          {servers.map((item) => (
+            <VStack key={item.id}>
+              <Avatar src={item.photoURL} objectFit="cover" onClick={() => handleButtonClick(item.id)} />
+              <Text>{item.name}</Text>
+            </VStack>
+          ))}
+        </HStack>
+        <ChangePhotoBox changeImageSubmitHandler={changeImageSubmitHandler} isOpen={isOpen} onClose={onClose} />
+      </Container>
+    </>
   );
 };
 
@@ -127,7 +158,7 @@ const ChangePhotoBox = ({ isOpen, onClose, changeImageSubmitHandler }) => {
               <VStack spacing={'8'}>
                 {imagePrev && <Avatar src={imagePrev} boxSize={'48'} />}
                 <Input type='file' css={{ '&::file-selector-button': fileUploadCss }} onChange={ChangeImage} />
-                <Button w='full' colorScheme='purple' type='submit'>Change</Button>
+                <Button w='full' colorScheme='blue' type='submit'>Change</Button>
               </VStack>
             </form>
           </Container>

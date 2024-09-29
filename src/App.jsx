@@ -10,8 +10,19 @@ import UpdateProfile from './Components/Profile/UpdateProfile';
 import ChangePassword from './Components/Profile/ChangePassword';
 import Page from './Components/Page';
 import AddServerMembers from './Components/AddMembers/AddServerMembers';
-import Friend from './Components/Server/Friend';
 import OthersProfile from './Components/Profile/OthersProfile';
+import { Loader } from './Components/Layout/Loader';
+import { ChakraProvider, ColorModeProvider, CSSReset, useColorMode } from '@chakra-ui/react';
+
+const LightModeWrapper = ({ children }) => {
+  // Hook to set the color mode to light
+  const { setColorMode } = useColorMode();
+  useEffect(() => {
+    setColorMode('light'); // Set to light mode
+  }, [setColorMode]);
+
+  return <>{children}</>;
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -26,43 +37,52 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>; // Replace this with a spinner or loading component
-  }
-
   return (
-    <Router>
-      <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/mypage' element={<Page />} />
-        <Route 
-          path='/signup' 
-          element={!isAuthenticated ? <SignUp /> : <Navigate to="/mypage" replace />} 
-        />
-        <Route 
-          path='/signin' 
-          element={!isAuthenticated ? <SignIn /> : <Navigate to="/mypage" replace />} 
-        />
-        <Route 
-          path='/forget-password' 
-          element={!isAuthenticated ? <ForgetPassword /> : <Navigate to="/profile" replace />} 
-        />
-        <Route 
-          path='/profile' 
-          element={isAuthenticated ? <Profile /> : <Navigate to="/signin" replace />} 
-        />
-        <Route 
-          path='/updateprofile' 
-          element={isAuthenticated ? <UpdateProfile /> : <Navigate to="/signin" replace />} 
-        />
-        <Route 
-          path='/changepassword' 
-          element={isAuthenticated ? <ChangePassword /> : <Navigate to="/signin" replace />} 
-        />
-         <Route path="/server/:serverId" element={<AddServerMembers />} />
-         <Route path="/otherprofile/:userID" element={<OthersProfile/>}/>
-      </Routes>
-    </Router>
+    <ChakraProvider>
+      <Router>
+        {loading ? (
+          <Loader />
+        ) : (
+          <Routes>
+            <Route
+              path='/'
+              element={
+                <LightModeWrapper>
+                  <Home />
+                </LightModeWrapper>
+              }
+            />
+            <Route path='/mypage' element={<Page />} />
+            <Route
+              path='/signup'
+              element={!isAuthenticated ? <SignUp /> : <Navigate to="/mypage" replace />}
+            />
+            <Route
+              path='/signin'
+              element={!isAuthenticated ? <SignIn /> : <Navigate to="/mypage" replace />}
+            />
+            <Route
+              path='/forget-password'
+              element={!isAuthenticated ? <ForgetPassword /> : <Navigate to="/profile" replace />}
+            />
+            <Route
+              path='/profile'
+              element={isAuthenticated ? <Profile /> : <Navigate to="/signin" replace />}
+            />
+            <Route
+              path='/updateprofile'
+              element={isAuthenticated ? <UpdateProfile /> : <Navigate to="/signin" replace />}
+            />
+            <Route
+              path='/changepassword'
+              element={isAuthenticated ? <ChangePassword /> : <Navigate to="/signin" replace />}
+            />
+            <Route path="/server/:serverId" element={<AddServerMembers />} />
+            <Route path="/otherprofile/:userID" element={<OthersProfile />} />
+          </Routes>
+        )}
+      </Router>
+    </ChakraProvider>
   );
 }
 

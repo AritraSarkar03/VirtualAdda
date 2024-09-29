@@ -18,7 +18,6 @@ import {
   ModalBody } from '@chakra-ui/react';
 import { auth, db, rdb } from '../../firebase';
 import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
-// import { ref } from 'firebase/storage';
 import { ref, get, set, child, serverTimestamp } from 'firebase/database';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,7 +25,7 @@ function Friend({isOpen, onClose}) {
   const [requests, setRequests] = useState([]);
   const [friends, setFriends] = useState([]);
   const [newFriendId, setNewFriendId] = useState([]);
-  const [chatId, setChatId] = useState([]);
+  const [chatID, setChatID] = useState([]);
 
   const user = auth.currentUser;
 
@@ -144,13 +143,13 @@ function Friend({isOpen, onClose}) {
       const chatSnapshot = await get(child(personalChatsRef, chatId));
       if (chatSnapshot.exists()) {
         console.log("Chat already exists:", chatId);
-        setChatId(chatId); // Return the existing chatId
+        setChatID(chatId); // Return the existing chatId
       } else {
         // Check for altChatId if chatId doesn't exist
         const altChatSnapshot = await get(child(personalChatsRef, altChatId));
         if (altChatSnapshot.exists()) {
           console.log("Chat already exists:", altChatId);
-          setChatId(altChatId); // Return the existing altChatId
+          setChatID(altChatId); // Return the existing altChatId
         } else {
           // Neither exists, create a new chat with chatId
           await set(ref(rdb, `chats/${chatId}`), {
@@ -161,18 +160,16 @@ function Friend({isOpen, onClose}) {
             createdAt: serverTimestamp(),
           });
           console.log("New chat created:", chatId);
-          setChatId(chatId); // Return the newly created chatId
+          setChatID(chatId);
         }
       }
-      navigate('/mypage', { state: { ChannelId: chatId } });
+      navigate('/mypage', { state: { ChannelId: chatID } });
+      onClose();
     } catch (error) {
       console.error("Error checking or creating chat:", error);
       throw error;
     }
   };
-
-  console.log(chatId);
-
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -188,7 +185,6 @@ function Friend({isOpen, onClose}) {
             </TabList>
 
             <TabPanels>
-              {/* Friends Tab */}
               <TabPanel>
                 {friends.length > 0 ? (
                   friends.map((friend, index) => (

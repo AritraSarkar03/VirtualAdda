@@ -24,6 +24,9 @@ import {
   MenuList,
   MenuItem,
   Menu,
+  RadioGroup,
+  Radio,
+  HStack,
 } from '@chakra-ui/react';
 import { auth, db } from '../../firebase';
 import { deleteDoc, doc, getDoc, setDoc, updateDoc, arrayRemove, collection, arrayUnion } from 'firebase/firestore';
@@ -33,18 +36,20 @@ import { FaCrown, FaShieldAlt, FaUser } from 'react-icons/fa';
 
 export const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
   const [channelName, setChannelName] = useState('');
+  const [channelType, setChannelType] = useState('text'); // default to 'text'
 
   const handleCreate = async (e) => {
     e.preventDefault();
     const user = auth.currentUser;
     const channelId = `${Date.now()}_${user.uid}`;
     try {
-      // Add the server document with the ID
+      // Add the channel document with the chosen ID
       await setDoc(doc(db, "channels", channelId), {
         id: channelId,
         server: serverId,
         name: channelName,
         admin: user.uid,
+        type: channelType, // Include the selected channel type
         createdAt: new Date(),
       });
     } catch (e) {
@@ -63,10 +68,19 @@ export const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
             placeholder="Channel name"
             value={channelName}
             onChange={(e) => setChannelName(e.target.value)}
+            mb={4}
           />
+
+          {/* RadioGroup for selecting channel type */}
+          <RadioGroup onChange={setChannelType} value={channelType}>
+            <HStack spacing={5}>
+              <Radio value="text">Text Channel</Radio>
+              <Radio value="video">Video Channel</Radio>
+            </HStack>
+          </RadioGroup>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="purple" mr={3} onClick={handleCreate}>
+          <Button colorScheme="blue" mr={3} onClick={handleCreate}>
             Create
           </Button>
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
@@ -75,6 +89,7 @@ export const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
     </Modal>
   );
 };
+
 
 export const InvitePeopleModal = ({ isOpen, onClose, serverId }) => {
   const content = `http://localhost:3000/server/${serverId}`;
@@ -89,7 +104,7 @@ export const InvitePeopleModal = ({ isOpen, onClose, serverId }) => {
           <InputGroup mb={4}>
             <Input value={content} isReadOnly />
             <InputRightElement width="4.5rem">
-              <Button h="1.75rem" size="sm" onClick={onCopy} colorScheme={'purple'}>
+              <Button h="1.75rem" size="sm" onClick={onCopy} colorScheme={'blue'}>
                 {hasCopied ? "Copied" : "Copy"}
               </Button>
             </InputRightElement>
@@ -161,7 +176,7 @@ export const EditModal = ({ isOpen, onClose, serverId }) => {
                 onChange={(e) => setServerName(e.target.value)}
                 placeholder={'Enter server name'}
                 type="text"
-                focusBorderColor="purple.500"
+                focusBorderColor="blue.500"
               />
               <Box my={'4'}>
                 <FormLabel htmlFor="chooseServerPhoto">Choose Server Photo</FormLabel>
@@ -171,11 +186,11 @@ export const EditModal = ({ isOpen, onClose, serverId }) => {
                   required
                   id="chooseServerPhoto"
                   type="file"
-                  focusBorderColor="purple.500"
+                  focusBorderColor="blue.500"
                   css={{ '&::file-selector-button': fileUploadCss }}
                 />
               </Box>
-              <Button colorScheme="purple" my={'4'} type="submit" mx="auto" display="block">
+              <Button colorScheme="blue" my={'4'} type="submit" mx="auto" display="block">
                 Update Server
               </Button>
             </form>

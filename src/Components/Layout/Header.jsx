@@ -1,130 +1,52 @@
-import React from 'react';
-import { HStack, VStack, useDisclosure, useToast } from '@chakra-ui/react';
-import { ColorModeSwitcher } from '../../ColorModeSwitcher';
-import {
-  Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-} from '@chakra-ui/react';
-import { AiOutlineMenu } from 'react-icons/ai';
-import { RiDashboardFill, RiLogoutBoxLine } from 'react-icons/ri';
-import { Link, useNavigate } from 'react-router-dom';
-import { getAuth, signOut } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Heading, HStack, Text } from '@chakra-ui/react';
+import { Link } from 'react-router-dom';
+import { auth } from '../../firebase'; // Adjust the path as necessary
+import { onAuthStateChanged } from 'firebase/auth';
 
-const Header = ({ isAuthenticated, user }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const navigate = useNavigate();
-  const auth = getAuth();
-  const toast = useToast();
+const Header = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const logoutHandler = async () => {
-    try {
-      await signOut(auth);
-      onClose();
-      navigate('/signin');
-      toast({
-        title: "Logged out",
-        description: "You have been successfully logged out.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-      });
-    } catch (error) {
-      console.error('Error logging out:', error);
-      toast({
-        title: "Error",
-        description: "There was an error logging out.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-      });
-    }
-  };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(!!user); // Set to true if user is logged in
+    });
 
-  const LinkButton = ({ url, title }, onClose) => (
-    <Link to={url}>
-      <Button onClick={onClose} variant="ghost">{title}</Button>
-    </Link>
-  );
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
   return (
-    <div>
-      <Button
-        onClick={onOpen}
-        colorScheme={'purple'}
-        width="12"
-        zIndex={'overlay'}
-        height={'12'}
-        rounded={'full'}
-        position={'fixed'}
-        top={'4'}
-        left={'6'}
-      >
-        <AiOutlineMenu />
-      </Button>
-      <ColorModeSwitcher />
-      <Drawer placement="left" isOpen={isOpen} onClose={onClose}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth={'1px'}>LearnTube</DrawerHeader>
-          <DrawerBody>
-            <VStack alignItems={'flex-start'} spacing={'4'}>
-              <LinkButton url="/" title="Home" />
-              <LinkButton url="/mypage" title="My Page" />
-              <LinkButton url="/requestcourse" title="Request for a Course" />
-              <LinkButton url="/contactus" title="Contact Us" />
-              <LinkButton url="/about" title="About Us" />
-            </VStack>
-            <HStack position={'absolute'} bottom={'2rem'} justifyContent={'space-evenly'} width={'80%'}>
-              {isAuthenticated ? (
-                <VStack>
-                  <HStack justifyContent={'space-evenly'}>
-                    <Link to='/profile'>
-                      <Button onClick={onClose} colorScheme="purple" variant="outline">
-                        Profile
-                      </Button>
-                    </Link>
-                    <Button onClick={logoutHandler}>
-                      <RiLogoutBoxLine />
-                      Sign out
-                    </Button>
-                  </HStack>
-                  {user && user.role === 'admin' && (
-                    <Link to='/admin/dashboard'>
-                      <Button onClick={onClose} colorScheme="purple" variant="ghost">
-                        <RiDashboardFill style={{ margin: '4px' }} />
-                        Dashboard
-                      </Button>
-                    </Link>
-                  )}
-                </VStack>
-              ) : (
-                <HStack>
-                  <Link to='/signin'>
-                    <Button onClick={onClose} colorScheme="purple" variant="outline">
-                      Sign in
-                    </Button>
-                  </Link>
-                  <p>OR</p>
-                  <Link to='/signup'>
-                    <Button onClick={onClose} colorScheme="purple" variant="outline">
-                      Sign up
-                    </Button>
-                  </Link>
-                </HStack>
-              )}
-            </HStack>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-    </div>
+    <HStack
+      p={2}
+      justifyContent="space-between"
+      alignItems="center"
+      w={['100vw', '80vw']}  // 100vw for mobile, 80vw for larger screens
+      mx="auto"
+    >
+      <Text as={'b'} fontSize={['xl', '2xl']} >VirtualAdda</Text>
+      {isLoggedIn ? (
+        <Box mr={2}>
+          <Link to="/mypage">
+            <Button
+              bg='blue.500'
+              borderRadius="3xl"
+              padding="10px 20px">
+              Go to Server
+            </Button>
+          </Link>
+        </Box>
+      ) : (
+        <Link to="/signup">
+          <Button
+            bg='blue.500'
+            borderRadius="3xl"
+            padding="10px 20px">
+            Sign Up
+          </Button>
+        </Link>
+      )}
+    </HStack>
   );
 };
 

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, HStack, Text, useBreakpointValue, VStack, useColorModeValue } from '@chakra-ui/react';
+import { Box, Button, HStack, useBreakpointValue, VStack, useColorModeValue } from '@chakra-ui/react';
 import { AiOutlineMenu } from 'react-icons/ai';
 import Server from './Server/Server';
 import Channels from './Channels';
 import Chat from './ChatComponents/Chat';
-import { ColorModeSwitcher } from '../ColorModeSwitcher';
 import { useLocation } from 'react-router-dom';
+import VideoChannel from './VideoChannel';
+import { ChatLoader } from './Layout/Loader';
 
 function Page() {
   const location = useLocation();
@@ -17,7 +18,8 @@ function Page() {
   useEffect(() => {
     if (ServerId) setServerId(ServerId);
   }, [ServerId]);
-  const [channel, setChannel] = useState(null); // Current selected channel
+  const [channel, setChannel] = useState(null);
+  const [videoChannel, setVideoChannel] = useState(false);
   useEffect(() => {
     console.log(ChannelId);
     if (ChannelId) setChannel(ChannelId);
@@ -32,6 +34,9 @@ function Page() {
 
   const handleChannelSelect = (cid) => {
     setChannel(cid);
+  };
+  const handleVideoChannelSelect = (cid) => {
+    setVideoChannel(true);
   };
 
   const toggleSidebar = () => {
@@ -58,41 +63,41 @@ function Page() {
       overflow="hidden"
     >
       <HStack
-    bg={bgColor}
-    h="100%"
-    w={{ xl: '23%', base: '100%' }}
-    overflow="auto"
-    display={isSidebarVisible ? 'flex' : 'none'}
-    spacing={0} // Ensure no spacing between children
-    alignItems="stretch"
->
-    <Server serverId = {serverId} onSelectServer={handleServerSelect} />
-    <Channels serverId={serverId} onSelectChannel={handleChannelSelect} />
-</HStack>
+        bg={bgColor}
+        h="100%"
+        w={{ xl: '23%', base: '100%' }}
+        overflow="auto"
+        display={isSidebarVisible ? 'flex' : 'none'}
+        spacing={0} // Ensure no spacing between children
+        alignItems="stretch"
+      >
+        <Server serverId={serverId} onSelectServer={handleServerSelect} />
+        <Channels serverId={serverId} onSelectChannel={handleChannelSelect} onSelectVideoChannel={handleVideoChannelSelect} />
+      </HStack>
 
 
-      <VStack
+      {channel ? (<VStack
         bg={bgColor}
         h="100%"
         w={{ xl: '77%', base: '100%' }}
-        display={isTabletOrSmaller && isSidebarVisible?'none':'block'}
-        overflow="auto" 
-        css={{ 
+        display={isTabletOrSmaller && isSidebarVisible ? 'none' : 'block'}
+        overflow="auto"
+        css={{
           '&::-webkit-scrollbar': {
             display: 'none',
           },
           scrollbarWidth: 'none',
-        }} 
+        }}
       >
         <HStack
           w="100%"
-          h={ '5.5vh' }
+          h={'5.5vh'}
           align="center"
           px={5}
           bg={headerBgColor}
           borderBottom="1px"
           borderColor={borderColor}
-          // spacing={3}
+        // spacing={3}
         >
           {isTabletOrSmaller && (
             <Button onClick={toggleSidebar} variant="ghost">
@@ -105,13 +110,20 @@ function Page() {
             display="flex"
             alignItems="center"
           >
-            {channel ? channel.name : <Text>Loading...</Text>}
+            {channel.name}
           </Box>
         </HStack>
-        <Chat channel={channel} flex="1" /> {/* Ensure Chat takes up remaining space */}
-      </VStack>
-      {isTabletOrSmaller && !isSidebarVisible?(<ColorModeSwitcher/>):(<></>)}
-      {!isTabletOrSmaller && <ColorModeSwitcher/>}
+        {!videoChannel && (<Chat channel={channel} serverId={serverId} flex="1" />)}
+        {videoChannel && (<VideoChannel channel={channel} serverId={serverId} flex="1" />)}
+      </VStack>) :
+        <VStack
+          bg={bgColor}
+          h="100%"
+          w={{ xl: '77%', base: '100%' }}
+          display={isTabletOrSmaller && isSidebarVisible ? 'none' : 'block'}
+        >
+          <ChatLoader/>
+        </VStack>}
     </HStack>
   );
 }

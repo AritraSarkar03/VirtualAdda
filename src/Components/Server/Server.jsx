@@ -20,13 +20,14 @@ import {
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { RiCompassDiscoverFill } from "react-icons/ri";
 import { fileUploadCss } from '../Auth/SignUp';
 import { auth, db } from '../../firebase';
 import { doc, setDoc, getFirestore, getDoc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore';
 import { getDownloadURL, ref, getStorage, uploadString } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { ColorModeSwitcher } from '../../ColorModeSwitcher';
+import {Loader} from '../Layout/Loader';
 
 const RegisterServerModal = ({ isOpen, onClose }) => {
   const [serverName, setServerName] = useState('');
@@ -92,7 +93,7 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
                 onChange={(e) => setServerName(e.target.value)}
                 placeholder={'Enter server name'}
                 type="text"
-                focusBorderColor="purple.500"
+                focusBorderColor="blue.500"
               />
               <Box my={'4'}>
                 <FormLabel htmlFor="chooseServerPhoto">Choose Server Photo</FormLabel>
@@ -102,11 +103,11 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
                   required
                   id="chooseServerPhoto"
                   type="file"
-                  focusBorderColor="purple.500"
+                  focusBorderColor="blue.500"
                   css={{ '&::file-selector-button': fileUploadCss }}
                 />
               </Box>
-              <Button colorScheme="purple" my={'4'} type="submit" mx="auto" display="block">
+              <Button colorScheme="blue" my={'4'} type="submit" mx="auto" display="block">
                 Add Server
               </Button>
             </form>
@@ -276,7 +277,7 @@ function Server({ serverId, onSelectServer }) {
   }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader/>
   }
 
   return (
@@ -303,7 +304,7 @@ function Server({ serverId, onSelectServer }) {
           <Avatar
             src={process.env.REACT_APP_DEFAULT_SERVER_PHOTO}
             objectFit="cover"
-            border={serverId === process.env.REACT_APP_DEFAULT_SERVER ? '2px solid purple' : 'none'}
+            border={serverId === process.env.REACT_APP_DEFAULT_SERVER ? '2px solid blue' : 'none'}
             onClick={() => handleButtonClick(process.env.REACT_APP_DEFAULT_SERVER)}
             bg={buttonBgColor}
             mb={2}
@@ -315,7 +316,7 @@ function Server({ serverId, onSelectServer }) {
             <Avatar
               src={item.photoURL}
               objectFit="cover"
-              border={serverId === item.id ? '2px solid purple' : 'none'}
+              border={serverId === item.id ? '2px solid blue' : 'none'}
               onClick={() => handleButtonClick(item.id)}
               bg={buttonBgColor}
               mb={2}
@@ -328,7 +329,7 @@ function Server({ serverId, onSelectServer }) {
           <Avatar
             src={newServer.photoURL}
             objectFit="cover"
-            border={serverId === newServer.id ? '2px solid purple' : 'none'}
+            border={serverId === newServer.id ? '2px solid blue' : 'none'}
             onClick={() => handleButtonClick(newServer.id)}
             bg={buttonBgColor}
             mb={2}
@@ -345,8 +346,8 @@ function Server({ serverId, onSelectServer }) {
             onClick={handleAddServer}
             bg={buttonBgColor}
             borderRadius="2xl"
-            w="100%" // Full width
-            h="50px" // Full height
+            w="100%"
+            h="50px"
             display="flex"
             justifyContent="center"
             alignItems="center"
@@ -355,21 +356,6 @@ function Server({ serverId, onSelectServer }) {
           </Button>
         </Tooltip>
 
-        <Tooltip label="Discover Servers" placement="right">
-          <Button
-            variant="unstyled"
-            onClick={handleAddServer}
-            bg={buttonBgColor}
-            borderRadius="2xl"
-            w="100%" // Full width
-            h="50px" // Full height
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <RiCompassDiscoverFill color="green" size="50%" />
-          </Button>
-        </Tooltip>
       </Flex>
       <Box
         display="flex"
@@ -378,17 +364,18 @@ function Server({ serverId, onSelectServer }) {
         position="absolute"
         bottom="0"
         width="100%"
-        pb={4} // Add some padding to the bottom
+        pb={4}
         pr={4}
       >
+        <ColorModeSwitcher mb='3vh'/>
         <Tooltip label={'Profile'} placement="right">
           <Avatar
-            src={userData.avatar} // Use user.photoURL if avatar is not defined
-            size="sm" // Set the size of the avatar to 'sm'
+            src={userData.avatar}
+            size="sm"
             objectFit="cover"
             bg={buttonBgColor}
             mb={2}
-            onClick={handleProfileClick} // Add the click handler here
+            onClick={handleProfileClick}
           />
         </Tooltip>
       </Box>
@@ -397,10 +384,10 @@ function Server({ serverId, onSelectServer }) {
         <ModalContent>
           <ModalHeader>Notification</ModalHeader>
           <ModalBody>
-            <p>The server has not been added yet!</p>
+            <p>The server has not been added yet! Join the server to hang out with bew friends!</p>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="purple" onClick={addServer} mx={2}>Add</Button>
+            <Button colorScheme="blue" onClick={addServer} mx={2}>Add</Button>
             <Button colorScheme="red" onClick={() => setIsModalVisible(false)}>Close</Button>
           </ModalFooter>
         </ModalContent>

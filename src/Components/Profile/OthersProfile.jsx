@@ -89,7 +89,7 @@ const OthersProfile = () => {
 
   return (
     <Container h={'95vh'} maxW="container.lg" py="8">
-      <Heading children="OthersProfile" m="8" textTransform={'uppercase'} />
+      <Heading children="Profile" m="8" textTransform={'uppercase'} />
       <Stack justifyContent={'flex-start'} direction={['column', 'row']} alignItems={'center'} spacing={['8', '16']} padding={'8'}>
         <VStack>
           <Avatar src={userData.avatar} boxSize={'48'} />
@@ -99,7 +99,7 @@ const OthersProfile = () => {
           <HStack><Text fontWeight="bold">Email</Text><Text>{userData.email}</Text></HStack>
           {isFriend && (
             <Stack direction={['column', 'row']} alignItems={'center'}>
-              <Button colorScheme="purple" onClick={handleAddFriend}>Add Friend</Button>
+              <Button colorScheme="blue" onClick={handleAddFriend}>Add Friend</Button>
             </Stack>
           )}
         </VStack>

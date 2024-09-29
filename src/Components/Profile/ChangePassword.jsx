@@ -50,7 +50,7 @@ const ChangePassword = () => {
           mb="6"
           textAlign="center"
           fontSize={{ base: "xl", md: "2xl" }}
-          color="purple.600"
+          color="blue.600"
           textTransform="uppercase"
         >
           Change Password
@@ -63,13 +63,13 @@ const ChangePassword = () => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               variant="outline"
-              focusBorderColor="purple.500"
+              focusBorderColor="blue.500"
               size="lg"
             />
             <Button
               isLoading={loading}
               type="submit"
-              colorScheme="purple"
+              colorScheme="blue"
               size="lg"
               w="full"
             >

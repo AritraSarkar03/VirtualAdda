@@ -70,7 +70,7 @@ const UpdateProfile = ({ user }) => {
           mb={'8'}
           textAlign={'center'}
           fontSize="3xl"
-          color="purple.600"
+          color="blue.600"
           textTransform={'uppercase'}
         >
           Update Profile
@@ -83,7 +83,7 @@ const UpdateProfile = ({ user }) => {
             onChange={e => setName(e.target.value)}
             placeholder={'Enter Name'}
             type="text"
-            focusBorderColor="purple.500"
+            focusBorderColor="blue.500"
             size="lg"
           />
           <Input
@@ -92,13 +92,13 @@ const UpdateProfile = ({ user }) => {
             onChange={e => setEmail(e.target.value)}
             placeholder={'Enter Email'}
             type="email"
-            focusBorderColor="purple.500"
+            focusBorderColor="blue.500"
             size="lg"
           />
           <Button
             isLoading={loading}
             w='full'
-            colorScheme='purple'
+            colorScheme='blue'
             size="lg"
             type='submit'
           >

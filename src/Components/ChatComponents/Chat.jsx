@@ -21,7 +21,6 @@ import { auth, db, rdb } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { set, ref, push, onValue, off, update } from 'firebase/database';
 import { isLastMessage, isNewTime, isSameSender, isSameSenderMargin } from '../Config.js/ChatLogic';
-import OthersProfile from '../Profile/OthersProfile';
 import { useNavigate } from 'react-router-dom';
 
 export const EditMessageModal = ({ isOpen, onClose, onSubmit }) => {
@@ -58,7 +57,7 @@ export const EditMessageModal = ({ isOpen, onClose, onSubmit }) => {
   );
 };
 
-const Chat = ({ channel }) => {
+const Chat = ({ channel, serverId }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [messageId, setMessageId] = useState(null);
@@ -69,8 +68,10 @@ const Chat = ({ channel }) => {
   const messageBgColorSender = useColorModeValue('#5A9FCF', '#4A8CC2'); // Message background for sender
   const messageBgColorReceiver = useColorModeValue('#5ABA84', '#4A9A6E'); // Message background for receiver
   const inputBgColor = useColorModeValue('white', 'gray.600'); // Input background color
-  const inputBorderColor = useColorModeValue('purple', 'purple.300'); // Input border color
+  const inputBorderColor = useColorModeValue('blue', 'blue.300'); // Input border color
   const dropdownBgColor = useColorModeValue('white', 'gray.500');
+  const placeholderColor = useColorModeValue('gray.700', 'gray.200');
+  const textColor = useColorModeValue('black', 'white');
   const user = auth.currentUser;
 
   const handleSendMessage = async (e) => {
@@ -166,7 +167,7 @@ const Chat = ({ channel }) => {
   const handleMenuToggle = (id) => {
     setActiveMenu(activeMenu === id ? null : id); // Toggle menu for the clicked message
   };
- 
+
   const navigate = useNavigate();
   const handleViewProfile = (id) => {
     navigate(`/otherprofile/${id}`);
@@ -224,7 +225,7 @@ const Chat = ({ channel }) => {
                   isLastMessage(messages, i, user.uid)) && (
                     <Tooltip label={m.senderName} placement="bottom-start" hasArrow>
                       <Avatar
-                        onClick={()=>handleViewProfile(m.sender)}
+                        onClick={() => handleViewProfile(m.sender)}
                         mr={1}
                         size="sm"
                         cursor="pointer"
@@ -232,17 +233,17 @@ const Chat = ({ channel }) => {
                       />
                     </Tooltip>
                   )}
-                
+
 
                 <Box
-                position='relative'
+                  position='relative'
                   bg={m.sender === user.uid ? messageBgColorSender : messageBgColorReceiver}
                   mx="2"
                   borderRadius="20px"
                   p="5px 15px"
                   w="fit-content"
                   maxW="60%"
-                  ml={isSameSenderMargin(messages, m, i, user.uid)} 
+                  ml={isSameSenderMargin(messages, m, i, user.uid)}
                   onClick={() => handleMenuToggle(m.id)} // Toggle menu for the specific message
                 >
                   {m.message !== "" ? m.message : <em>This message has been deleted</em>}
@@ -276,30 +277,33 @@ const Chat = ({ channel }) => {
                   )}
                 </Box>
 
-                
+
               </Box>
             </React.Fragment>
           ))}
         <div ref={messagesEndRef} />
       </VStack>
+      {console.log("user: ",user.uid)}
+      {(serverId !== process.env.REACT_APP_DEFAULT_SERVER || user.uid !== process.env.REACT_APP_DEFAULT_SERVER_ADMIN) && (
+        <HStack w="full" spacing={4} mt={4}>
+          <Input
+            flex="1"
+            placeholder="Type your message..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(e)}
+            variant="outline"
+            bg={inputBgColor}
+            color={textColor}
+            borderColor={inputBorderColor}
+            _placeholder={{ color: placeholderColor }}
+          />
+          <Button colorScheme="blue" onClick={handleSendMessage}>
+            Send
+          </Button>
+        </HStack>
+      )}
 
-      <HStack w="full" spacing={4} mt={4}>
-        <Input
-          flex="1"
-          placeholder="Type your message..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(e)}
-          variant="outline"
-          bg={inputBgColor} // Dynamic input background color
-          color={{ color: useColorModeValue('white', 'black') }} // Static text color
-          borderColor={inputBorderColor} // Dynamic border color
-          _placeholder={{ color: useColorModeValue('gray.700', 'gray.200') }} // Placeholder text color
-        />
-        <Button colorScheme="purple" onClick={handleSendMessage}>
-          Send
-        </Button>
-      </HStack>
       <EditMessageModal
         isOpen={isOpen}
         onClose={onClose}
