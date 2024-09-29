@@ -12,7 +12,8 @@ import Page from './Components/Page';
 import AddServerMembers from './Components/AddMembers/AddServerMembers';
 import OthersProfile from './Components/Profile/OthersProfile';
 import { Loader } from './Components/Layout/Loader';
-import { ChakraProvider, ColorModeProvider, CSSReset, useColorMode } from '@chakra-ui/react';
+import { ChakraProvider, useColorMode } from '@chakra-ui/react';
+import AboutUs from './Components/About/AboutUs';
 
 const LightModeWrapper = ({ children }) => {
   // Hook to set the color mode to light
@@ -79,6 +80,8 @@ function App() {
             />
             <Route path="/server/:serverId" element={<AddServerMembers />} />
             <Route path="/otherprofile/:userID" element={<OthersProfile />} />
+
+            <Route path="/aboutus" element={<AboutUs/>} />
           </Routes>
         )}
       </Router>

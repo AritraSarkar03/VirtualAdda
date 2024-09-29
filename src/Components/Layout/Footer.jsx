@@ -1,3 +1,4 @@
+// Footer.jsx
 import React from 'react';
 import {
   Box,
@@ -5,17 +6,16 @@ import {
   Stack,
   Text,
   Link,
-  Icon,
-  Divider,
-  HStack,
+  HStack
 } from '@chakra-ui/react';
-import { FaFacebook, FaTwitter, FaInstagram } from 'react-icons/fa';
+import { Link as RouterLink } from 'react-router-dom';
 
 const Footer = () => {
   return (
     <Box bg="gray.800" color="white" py={6}>
       <Container maxW="container.lg">
-        <Stack spacing={4}>          
+        <Stack spacing={4}>
+          {/* Contact Information */}
           <HStack spacing={6} justify="space-between">
             <Stack spacing={1}>
               <Text fontWeight="bold">Contact Us</Text>
@@ -24,27 +24,24 @@ const Footer = () => {
               <Text>Address: 123 Main St, City, Country</Text>
             </Stack>
 
-            <Stack spacing={1}>
-              <Text fontWeight="bold">Quick Links</Text>
-              <Link href="#" color="teal.200">About Us</Link>
-              <Link href="#" color="teal.200">Services</Link>
-              <Link href="#" color="teal.200">Privacy Policy</Link>
-              <Link href="#" color="teal.200">Terms of Service</Link>
-            </Stack>
-
+            {/* Navigation Links */}
             <HStack spacing={4}>
-              <Link href="#" isExternal>
-                <Icon as={FaFacebook} boxSize={6} />
+              <Link as={RouterLink} to="/aboutus#about">
+                About
               </Link>
-              <Link href="#" isExternal>
-                <Icon as={FaTwitter} boxSize={6} />
+              <Link as={RouterLink} to="/aboutus#services">
+                Services
               </Link>
-              <Link href="#" isExternal>
-                <Icon as={FaInstagram} boxSize={6} />
+              <Link as={RouterLink} to="/aboutus#privacy-policy">
+                Privacy Policy
+              </Link>
+              <Link as={RouterLink} to="/aboutus#terms-and-conditions">
+                Terms & Conditions
               </Link>
             </HStack>
           </HStack>
 
+          {/* Footer Bottom Text */}
           <Text textAlign="center" fontSize="sm">
             © {new Date().getFullYear()} VirtualAdda. All rights reserved.
           </Text>

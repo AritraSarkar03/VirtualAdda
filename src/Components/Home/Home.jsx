@@ -1,28 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { VStack, Text, HStack, Stack, Heading, Box, Container, Image } from '@chakra-ui/react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import React from 'react';
+import { VStack, Text, Heading, Box, Container, Image } from '@chakra-ui/react';
 import Header from '../Layout/Header'
 import Footer from '../Layout/Footer';
 
 function Home() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user);
-      setUser(user);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>; 
-  }
-
   return (
     <Box
     h={'100vh'}

@@ -1,5 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Stack, Text, Container, Heading, Button, Avatar, VStack, HStack, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Input, useDisclosure, Box, Spacer, Flex, useToast } from '@chakra-ui/react';
+import { 
+  Stack,
+  Text, 
+  Container, 
+  Heading,
+  Button, 
+  Avatar, 
+  VStack, 
+  HStack, 
+  Modal, 
+  ModalOverlay, 
+  ModalContent, 
+  ModalHeader, 
+  ModalCloseButton, 
+  ModalBody, 
+  ModalFooter, 
+  Input, 
+  useDisclosure, 
+  Flex, 
+  useToast 
+} from '@chakra-ui/react';
 import { auth, db } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { signOut, updateProfile } from "firebase/auth";
@@ -7,7 +27,6 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Link, useNavigate } from 'react-router-dom';
 import { fileUploadCss } from '../Auth/SignUp';
 import { RiLogoutBoxLine } from 'react-icons/ri'
-import { useHistory } from 'react-router-dom';
 
 const Profile = () => {
   const [userData, setUserData] = useState({});
