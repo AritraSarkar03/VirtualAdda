@@ -47,56 +47,22 @@ const VideoChannel = () => {
       </Flex>
     {/*)} */}
       <HStack bg={button} rounded='2xl' m={2} p={1}>
-        {isVideoOn ? (
-          <IconButton
-            variant='ghost'
-            onClick={toggleVideo}
-            icon={<FaVideo />}
-            isRound
-          />
-        ) : (
-          <IconButton
-            variant='ghost'
-            onClick={toggleVideo}
-            icon={<FaVideoSlash />}
-            isRound
-          />
-        )}
-        {isCallOn ? (
-          <IconButton
-            variant='ghost'
-            bg={'green.700'}
-            _hover={{ bg: 'green.500', color: 'white' }}
-            onClick={toggleCall}
-            icon={<IoCall />}
-            isRound
-          />
-        ) : (
-          <IconButton
-            transform="rotate(135deg)"
-            bg={'red.700'}
-            _hover={{ bg: 'red.500', color: 'white' }}
-            variant='ghost'
-            onClick={toggleCall}
-            icon={<IoCall />}
-            isRound
-          />
-        )}
-        {isMicOn ? (
-          <IconButton
-            variant='ghost'
-            onClick={toggleMic}
-            icon={<FaMicrophone />}
-            isRound
-          />
-        ) : (
-          <IconButton
-            variant='ghost'
-            onClick={toggleMic}
-            icon={<FaMicrophoneSlash />}
-            isRound
-          />
-        )}
+        <IconButton
+          onClick={toggleVideo}
+          icon={isVideoOn ? <FaVideo /> : <FaVideoSlash />}
+          isRound
+        />
+        <IconButton
+          onClick={toggleCall}
+          transform={isCallOn? 'rotate(135deg)' : 'none'}
+          icon={<IoCall />}
+          isRound
+        />
+        <IconButton
+          onClick={toggleMic}
+          icon={isMicOn ? <FaMicrophone /> : <FaMicrophoneSlash />}
+          isRound
+        />
       </HStack>
     </VStack>
   );
