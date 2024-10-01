@@ -2,9 +2,11 @@ import { Flex, Text, Box, useColorModeValue, VStack, HStack, IconButton } from '
 import { FaVideo, FaVideoSlash } from "react-icons/fa6";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { IoCall } from "react-icons/io5";
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { auth, functions } from '../../firebase';
 
-const VideoChannel = () => {
+const VideoChannel = ({channel}) => {
   const [isCallOn, setIsCall] = useState(true);
   const [isVideoOn, setIsVideo] = useState(false);
   const [isMicOn, setIsMic] = useState(false);
@@ -22,6 +24,46 @@ const VideoChannel = () => {
   const toggleCall = () => {
     setIsCall(!isCallOn);
   }
+
+  const [token, setToken] = useState(null);
+  const user = auth.currentUser;
+
+  // Ensure user is available and channel ID is valid before fetching token
+  useEffect(() => {
+    if (!user) {
+      console.error("User is not authenticated.");
+      return;
+    }
+
+    const userId = user.uid;
+    const roomName = channel.id;
+
+    const fetchToken = async () => {
+      try {
+        const response = await fetch('/api/generateToken', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId, roomName }),
+        });
+    
+        if (!response.ok) {
+          throw new Error('Failed to generate token');
+        }
+    
+        const data = await response.json();
+        return data.token;
+      } catch (error) {
+        console.error('Error fetching token:', error);
+      }
+    };
+ fetchToken();    
+  }, [user, channel.id]); // Dependency on user and channel ID
+
+  useEffect(() => {
+    console.log("token:", token); // Log the token after it has been updated
+  }, [token]);
 
   return (
     <VStack
