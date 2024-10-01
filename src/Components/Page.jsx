@@ -5,7 +5,7 @@ import Server from './Server/Server';
 import Channels from './Channels';
 import Chat from './ChatComponents/Chat';
 import { useLocation } from 'react-router-dom';
-import VideoChannel from './VideoChannel';
+import VideoChannel from './VideoChannel/VideoChannel';
 import { ChatLoader } from './Layout/Loader';
 
 function Page() {
