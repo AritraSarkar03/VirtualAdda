@@ -7,9 +7,9 @@ import {
 } from '@chakra-ui/react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { db } from '../firebase';
-import ServerSettings from './Server/ServerSettings';
-import Friend from './Server/Friend';
+import { db } from '../firebase.js';
+import ServerSettings from './Server/ServerSettings.jsx';
+import Friend from './Server/Friend.jsx';
 
 function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
     const bgColor = useColorModeValue('gray.100', 'gray.700');

@@ -12,8 +12,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { auth, db } from '../../firebase';
 import { FaAngleDown } from 'react-icons/fa';
-import { CreateChannelModal, InvitePeopleModal, MemberModal, EditModal, DeleteModal, LeaveModal } from './SettingFunctionality';
-import {Loader} from '../Layout/Loader';
+import { CreateChannelModal, InvitePeopleModal, MemberModal, EditModal, DeleteModal, LeaveModal } from './SettingFunctionality.jsx';
+import {Loader} from '../Layout/Loader.jsx';
 // Import other modals similarly
 
 function ServerSettings({ serverId }) {

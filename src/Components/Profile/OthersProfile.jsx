@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Stack, Text, Container, Heading, Button, Avatar, VStack, HStack } from '@chakra-ui/react';
-import { auth, db } from '../../firebase';
+import { auth, db } from '../../firebase.js';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useNavigate, useParams } from 'react-router-dom';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { VStack, Text, Heading, Box, Container, Image } from '@chakra-ui/react';
-import Header from '../Layout/Header'
-import Footer from '../Layout/Footer';
+import Header from '../Layout/Header.jsx'
+import Footer from '../Layout/Footer.jsx';
 
 function Home() {
   return (

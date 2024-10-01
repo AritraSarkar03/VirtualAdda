@@ -17,10 +17,10 @@ import {
   ModalHeader,
   useDisclosure
 } from '@chakra-ui/react';
-import { auth, db, rdb } from '../../firebase';
+import { auth, db, rdb } from '../../firebase.js';
 import { doc, getDoc } from 'firebase/firestore';
 import { set, ref, push, onValue, off, update } from 'firebase/database';
-import { isLastMessage, isNewTime, isSameSender, isSameSenderMargin } from '../Config.js/ChatLogic';
+import { isLastMessage, isNewTime, isSameSender, isSameSenderMargin } from '../Config.js/ChatLogic.jsx';
 import { useNavigate } from 'react-router-dom';
 
 export const EditMessageModal = ({ isOpen, onClose, onSubmit }) => {

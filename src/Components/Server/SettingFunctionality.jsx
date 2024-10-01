@@ -28,10 +28,10 @@ import {
   Radio,
   HStack,
 } from '@chakra-ui/react';
-import { auth, db } from '../../firebase';
+import { auth, db } from '../../firebase.js';
 import { deleteDoc, doc, getDoc, setDoc, updateDoc, arrayRemove, collection, arrayUnion } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadString } from 'firebase/storage';
-import { fileUploadCss } from '../Auth/SignUp';
+import { fileUploadCss } from '../Auth/SignUp.jsx';
 import { FaCrown, FaShieldAlt, FaUser } from 'react-icons/fa';
 
 export const CreateChannelModal = ({ isOpen, onClose, serverId }) => {

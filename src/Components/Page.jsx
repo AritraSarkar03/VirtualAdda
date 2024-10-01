@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, HStack, useBreakpointValue, VStack, useColorModeValue } from '@chakra-ui/react';
 import { AiOutlineMenu } from 'react-icons/ai';
-import Server from './Server/Server';
-import Channels from './Channels';
-import Chat from './ChatComponents/Chat';
+import Server from './Server/Server.jsx';
+import Channels from './Channels.jsx';
+import Chat from './ChatComponents/Chat.jsx';
 import { useLocation } from 'react-router-dom';
-import VideoChannel from './VideoChannel/VideoChannel';
-import { ChatLoader } from './Layout/Loader';
+import VideoChannel from './VideoChannel/VideoChannel.jsx';
+import { ChatLoader } from './Layout/Loader.jsx';
 
 function Page() {
   const location = useLocation();

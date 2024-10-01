@@ -11,7 +11,7 @@ import {
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase'; // Adjust the path according to your project structure
+import { auth } from '../../firebase.js'; // Adjust the path according to your project structure
 
 const SignIn = () => {
   const [email, setEmail] = useState('');

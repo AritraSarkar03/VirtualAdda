@@ -16,7 +16,7 @@ import {
   ModalHeader,
   ModalFooter,
   ModalBody } from '@chakra-ui/react';
-import { auth, db, rdb } from '../../firebase';
+import { auth, db, rdb } from '../../firebase.js';
 import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
 import { ref, get, set, child, serverTimestamp } from 'firebase/database';
 import { useNavigate } from 'react-router-dom';

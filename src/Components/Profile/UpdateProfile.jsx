@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Heading, Input, Button, VStack, useToast } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../../firebase';
+import { auth, db } from '../../firebase.js';
 import { updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 

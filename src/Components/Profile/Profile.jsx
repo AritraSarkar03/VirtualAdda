@@ -20,12 +20,12 @@ import {
   Flex, 
   useToast 
 } from '@chakra-ui/react';
-import { auth, db } from '../../firebase';
+import { auth, db } from '../../firebase.js';
 import { doc, getDoc } from 'firebase/firestore';
 import { signOut, updateProfile } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Link, useNavigate } from 'react-router-dom';
-import { fileUploadCss } from '../Auth/SignUp';
+import { fileUploadCss } from '../Auth/SignUp.jsx';
 import { RiLogoutBoxLine } from 'react-icons/ri'
 
 const Profile = () => {

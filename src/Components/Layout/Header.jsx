@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, HStack, Text } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import { auth } from '../../firebase'; // Adjust the path as necessary
+import { auth } from '../../firebase.js'; // Adjust the path as necessary
 import { onAuthStateChanged } from 'firebase/auth';
 
 const Header = () => {

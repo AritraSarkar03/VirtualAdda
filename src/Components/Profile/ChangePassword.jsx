@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Heading, Input, Button, useToast, VStack, Box } from '@chakra-ui/react';
-import { auth } from '../../firebase';
+import { auth } from '../../firebase.js';
 import { updatePassword } from 'firebase/auth';
 
 const ChangePassword = () => {

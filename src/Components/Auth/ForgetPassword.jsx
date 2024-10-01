@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Container, Heading, FormLabel, Input, Button, useToast } from '@chakra-ui/react';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { auth } from '../../firebase.js';
 
 const ForgetPassword = () => {
   const [email, setEmail] = useState('');

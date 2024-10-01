@@ -4,7 +4,7 @@ import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { IoCall } from "react-icons/io5";
 import React, { useEffect, useState } from 'react'
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { auth, functions } from '../../firebase';
+import { auth, functions } from '../../firebase.js';
 
 const VideoChannel = ({channel}) => {
   const [isCallOn, setIsCall] = useState(true);

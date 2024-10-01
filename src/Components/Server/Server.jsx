@@ -20,14 +20,14 @@ import {
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { fileUploadCss } from '../Auth/SignUp';
-import { auth, db } from '../../firebase';
+import { fileUploadCss } from '../Auth/SignUp.jsx';
+import { auth, db } from '../../firebase.js';
 import { doc, setDoc, getFirestore, getDoc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore';
 import { getDownloadURL, ref, getStorage, uploadString } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { ColorModeSwitcher } from '../../ColorModeSwitcher';
-import {Loader} from '../Layout/Loader';
+import { ColorModeSwitcher } from '../../ColorModeSwitcher.js';
+import {Loader} from '../Layout/Loader.jsx';
 
 const RegisterServerModal = ({ isOpen, onClose }) => {
   const [serverName, setServerName] = useState('');

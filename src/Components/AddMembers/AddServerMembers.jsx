@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../../firebase'; // Adjust the import based on your setup
+import { auth, db } from '../../firebase.js'; // Adjust the import based on your setup
 import { Alert, AlertDescription, AlertIcon, AlertTitle, CloseButton } from '@chakra-ui/react';
-import SignIn from '../Auth/SignIn';
+import SignIn from '../Auth/SignIn.jsx';
 
 function ServerMembers() {
   const { serverId } = useParams();

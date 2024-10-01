@@ -12,11 +12,11 @@ import {
 import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db, storage } from '../../firebase';
+import { auth, db, storage } from '../../firebase.js';
 import { doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getToken } from 'firebase/messaging';
-import { messaging } from '../../firebase';
+import { messaging } from '../../firebase.js';
 
 export const fileUploadCss = {
   cursor: 'pointer',
