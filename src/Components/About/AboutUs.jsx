@@ -2,7 +2,7 @@
 import { Avatar, Container, VStack, Text, Heading, Stack, Button, Box } from '@chakra-ui/react';
 import React, { useEffect } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import termsAndConditions from './termsAndCondition.jsx';
+import termsAndConditions from './termsAndCondition.js';
 
 const Founder = () => (
   <Stack direction={['column', 'row']} spacing={['4', '16']} padding={'8'} id="about">
