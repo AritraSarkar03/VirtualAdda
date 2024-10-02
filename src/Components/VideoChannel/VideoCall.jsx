@@ -23,7 +23,7 @@ export const MyVideoConference = () => {
 
     return (
         <div>
-            <GridLayout tracks={tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
+            <GridLayout tracks={tracks} style={{ height: 'calc(94vh - var(--lk-control-bar-height))' }}>
                 <ParticipantTile />
             </GridLayout>
         </div>
@@ -105,7 +105,7 @@ const VideoCall = ({ roomName }) => {
             token={token}
             serverUrl={process.env.REACT_APP_WEBSOCKET_URL} // Ensure this is set correctly
             data-lk-theme="default"
-            style={{ height: '100vh' }}
+            style={{ height: '94.5vh' }}
             onRoomUpdate={handleRoomUpdate}  // Handle room updates
         >
             <MyVideoConference />
