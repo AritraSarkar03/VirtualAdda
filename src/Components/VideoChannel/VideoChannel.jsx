@@ -14,59 +14,10 @@ const VideoChannel = ({ channel }) => {
   const bg = useColorModeValue('white', 'gray.600');
   const button = useColorModeValue('gray.300', 'gray.700');
 
-  const toggleVideo = () => {
-    setIsVideo(!isVideoOn);
-  }
-
-  const toggleMic = () => {
-    setIsMic(!isMicOn);
-  }
-
   const toggleCall = () => {
     setIsCall(!isCallOn);
   }
 
-  const [token, setToken] = useState(null);
-  const user = auth.currentUser;
-
-  // Ensure user is available and channel ID is valid before fetching token
-  useEffect(() => {
-    if (!user) {
-      console.error("User is not authenticated.");
-      return;
-    }
-
-    const userId = user.uid;
-    const roomName = channel.id;
-
-    const fetchToken = async () => {
-      try {
-        const response = await fetch('/api/generateToken', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userId, roomName }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to generate token');
-        }
-
-        const data = await response.json();
-        setToken(data.token); // Set the token here
-      } catch (error) {
-        console.error('Error fetching token:', error);
-      }
-    };
-
-    fetchToken();
-  }, [user, channel.id]); // Dependency on user and channel ID
-
-  // This effect will run when the token is updated
-  useEffect(() => {
-    console.log("token:", token); // Log the token after it has been updated
-  }, [token]);
 
   return (
     <VStack
@@ -75,32 +26,34 @@ const VideoChannel = ({ channel }) => {
       height="94.5vh"
     >
       {!isCallOn ? (
-        <VideoCall token={token} video={isVideoOn} audio={isMicOn} />
+        <VideoCall roomName={channel} />
       ) : (
-        <Flex
-          align="center"
-          justify="center"
-          color="gray.400"
-          flex='1'
-        >
-          <Box textAlign="center">
-            <Text fontSize="2xl" fontWeight="bold">
-              Start a Call!
-            </Text>
-            <Text fontSize="lg" mt={4}>
-              Press Call to start a conversation!
-            </Text>
-          </Box>
-        </Flex>
+        <>
+          <Flex
+            align="center"
+            justify="center"
+            color="gray.400"
+            flex='1'
+          >
+            <Box textAlign="center">
+              <Text fontSize="2xl" fontWeight="bold">
+                Start a Call!
+              </Text>
+              <Text fontSize="lg" mt={4}>
+                Press Call to start a conversation!
+              </Text>
+            </Box>
+          </Flex>
+          <HStack bg={button} rounded='2xl' m={2} p={1}>
+            <IconButton
+              onClick={toggleCall}
+              transform={isCallOn ? 'rotate(135deg)' : 'none'}
+              icon={<IoCall />}
+              isRound
+            />
+          </HStack>
+        </>
       )}
-      <HStack bg={button} rounded='2xl' m={2} p={1}>
-        <IconButton
-          onClick={toggleCall}
-          transform={isCallOn ? 'rotate(135deg)' : 'none'}
-          icon={<IoCall />}
-          isRound
-        />
-      </HStack>
     </VStack>
   );
 }

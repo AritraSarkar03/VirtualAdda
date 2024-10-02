@@ -1,4 +1,5 @@
 import { AccessToken } from 'livekit-server-sdk';
+import jwt_decode from 'jwt-decode'; // Install this package via npm
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -24,14 +25,16 @@ export default async function handler(req, res) {
         });
 
         token.addGrant({ roomJoin: true, room: roomName });
-        token.ttl = 3600; // 1 hour
+        token.setExpiration(Math.floor(Date.now() / 1000) + (60 * 60)); // 1 hour
 
-        // Await the toJwt() if it's asynchronous
-        const jwt = await token.toJwt();
+        const jwt = token.toJwt();
 
+        // Decode the JWT to inspect its claims
+        const decoded = jwt_decode(jwt);
         console.log("Generated JWT:", jwt);
+        console.log("Decoded JWT:", decoded);
 
-        return res.status(200).json({jwt});
+        return res.status(200).json({ token: jwt });
     } catch (error) {
         console.error('Error generating token:', error);
         return res.status(500).json({ error: 'Failed to generate token' });

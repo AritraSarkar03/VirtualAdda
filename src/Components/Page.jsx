@@ -33,6 +33,7 @@ function Page() {
   };
 
   const handleChannelSelect = (cid) => {
+    setVideoChannel(false);
     setChannel(cid);
   };
   const handleVideoChannelSelect = (cid) => {
