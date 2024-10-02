@@ -81,7 +81,7 @@ const VideoCall = ({ roomName }) => {
 
         const fetchToken = async () => {
             try {
-                const response = await fetch('/api/get-livekit-token', {
+                const response = await fetch('/api/generateToken', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
