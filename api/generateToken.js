@@ -31,7 +31,7 @@ export default async function handler(req, res) {
 
         console.log("Generated JWT:", jwt);
 
-        return res.status(200).json({ token: jwt });
+        return res.status(200).json(jwt);
     } catch (error) {
         console.error('Error generating token:', error);
         return res.status(500).json({ error: 'Failed to generate token' });
