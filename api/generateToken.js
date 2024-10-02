@@ -1,5 +1,4 @@
 import { AccessToken } from 'livekit-server-sdk';
-import jwt_decode from 'jwt-decode'; // Install this package via npm
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -22,17 +21,13 @@ export default async function handler(req, res) {
     try {
         const token = new AccessToken(livekitApiKey, livekitSecret, {
             identity: userId,
+            expiration: Math.floor(Date.now() / 1000) + (60 * 60),
         });
 
         token.addGrant({ roomJoin: true, room: roomName });
         token.setExpiration(Math.floor(Date.now() / 1000) + (60 * 60)); // 1 hour
 
         const jwt = token.toJwt();
-
-        // Decode the JWT to inspect its claims
-        const decoded = jwt_decode(jwt);
-        console.log("Generated JWT:", jwt);
-        console.log("Decoded JWT:", decoded);
 
         return res.status(200).json({ token: jwt });
     } catch (error) {
