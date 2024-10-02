@@ -15,7 +15,7 @@ const VideoCall = ({token, video, audio}) => {
   
         try {
           // Connect to the room with the provided token
-          const room = await connect('ws://your-livekit-server', token, {
+          const room = await connect(process.env.REACT_APP_WEBSOCKET_URL, token, {
             autoSubscribe: true,
           });
   
