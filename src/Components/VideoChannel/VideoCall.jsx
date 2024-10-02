@@ -9,6 +9,8 @@ import {
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
+import { IconButton } from '@chakra-ui/react';
+import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash } from 'react-icons/fa6';
 
 export const MyVideoConference = () => {
     const tracks = useTracks(
@@ -42,12 +44,12 @@ export const MyVideoConference = () => {
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
                 <IconButton
                     onClick={toggleVideo}
-                    icon={videoTrack && videoTrack.isMuted ? <FaVideo /> : <FaVideoSlash />}
+                    icon={videoTrack && videoTrack.isMuted ? <FaVideo/> : <FaVideoSlash/>}
                     isRound
                 />
                 <IconButton
                     onClick={toggleAudio}
-                    icon={audioTrack && audioTrack.isMuted ? <FaMicrophone /> : <FaMicrophoneSlash />}
+                    icon={audioTrack && audioTrack.isMuted ? <FaMicrophone/> : <FaMicrophoneSlash/>}
                     isRound
                 />
             </div>
@@ -56,19 +58,12 @@ export const MyVideoConference = () => {
 }
 
 const VideoCall = ({ token }) => {
-    const serverUrl = process.env.NEXT_PUBLIC_LK_SERVER_URL;
-
-    if (!serverUrl) {
-        console.error('No LiveKit URL provided.');
-        return <div>Error: LiveKit URL is missing.</div>; // Optionally render an error UI
-    }
-
     return (
         <LiveKitRoom
             video={true}
             audio={true}
             token={token}
-            serverUrl={serverUrl}
+            serverUrl={process.env.REACT_APP_WEBSOCKET_URL}
             data-lk-theme="default"
             style={{ height: '100vh' }}
         >
