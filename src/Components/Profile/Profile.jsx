@@ -81,7 +81,6 @@ const Profile = () => {
   };
   const navigate = useNavigate();
   const handleButtonClick = (id) => {
-    console.log(id);
     navigate('/mypage', { state: { ServerId: id } });
   }
   const toast = useToast();

@@ -21,7 +21,6 @@ function Page() {
   const [channel, setChannel] = useState(null);
   const [videoChannel, setVideoChannel] = useState(false);
   useEffect(() => {
-    console.log(ChannelId);
     if (ChannelId) setChannel(ChannelId);
   }, [ChannelId]);
   const bgColor = useColorModeValue('gray.100', 'gray.900');

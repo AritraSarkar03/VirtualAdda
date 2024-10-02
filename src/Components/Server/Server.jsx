@@ -224,7 +224,6 @@ function Server({ serverId, onSelectServer }) {
   // Check if the server is added, and fetch server data if it is not
   useEffect(() => {
     const checkServer = async () => {
-      console.log(servers.some((server) => server.id === serverId), serverId === process.env.REACT_APP_DEFAULT_SERVER)
       if (!servers.some((server) => server.id === serverId) && serverId !== process.env.REACT_APP_DEFAULT_SERVER) {
         try {
           const serverDoc = await getDoc(doc(db, 'servers', serverId));
@@ -232,8 +231,7 @@ function Server({ serverId, onSelectServer }) {
           if (serverDoc.exists()) {
             const serverData = serverDoc.data();
             setNewServer(serverData);
-            setIsAdded(false); // Update `isAdded` to false
-            console.log("Server not added, isAdded set to false");
+            setIsAdded(false);
           } else {
             console.log("No such server exists!");
           }
@@ -251,7 +249,6 @@ function Server({ serverId, onSelectServer }) {
 
   useEffect(() => {
     let interval;
-    console.log("isAdded is:", isAdded);
     if (!isAdded) {
       setIsModalVisible(true);
       interval = setInterval(() => {

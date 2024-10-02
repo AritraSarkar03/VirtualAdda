@@ -3,6 +3,7 @@ import { Stack, Text, Container, Heading, Button, Avatar, VStack, HStack } from 
 import { auth, db } from '../../firebase.js';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useNavigate, useParams } from 'react-router-dom';
+import {Loader} from '../Layout/Loader.jsx';
 
 const OthersProfile = () => {
   const { userID } = useParams();
@@ -83,9 +84,10 @@ const OthersProfile = () => {
 
   const navigate = useNavigate();
   const handleButtonClick = (id) => {
-    console.log(id);
     navigate('/mypage', { state: { ServerId: id } });
   }
+
+  if(loading) return <Loader/>;;
 
   return (
     <Container h={'95vh'} maxW="container.lg" py="8">

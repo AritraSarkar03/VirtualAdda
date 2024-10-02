@@ -116,7 +116,6 @@ function Friend({isOpen, onClose}) {
   };
 
   const handleAddFriend = async () => {
-    console.log(newFriendId);
     if (newFriendId) {
       try {
         const userRef = doc(db, 'users', user.uid);
@@ -142,13 +141,11 @@ function Friend({isOpen, onClose}) {
       // Check if chatId exists
       const chatSnapshot = await get(child(personalChatsRef, chatId));
       if (chatSnapshot.exists()) {
-        console.log("Chat already exists:", chatId);
         setChatID(chatId); // Return the existing chatId
       } else {
         // Check for altChatId if chatId doesn't exist
         const altChatSnapshot = await get(child(personalChatsRef, altChatId));
         if (altChatSnapshot.exists()) {
-          console.log("Chat already exists:", altChatId);
           setChatID(altChatId); // Return the existing altChatId
         } else {
           // Neither exists, create a new chat with chatId
@@ -159,7 +156,6 @@ function Friend({isOpen, onClose}) {
             },
             createdAt: serverTimestamp(),
           });
-          console.log("New chat created:", chatId);
           setChatID(chatId);
         }
       }

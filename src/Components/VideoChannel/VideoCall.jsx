@@ -8,56 +8,23 @@ import {
     useTracks,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
-import { IconButton, Spinner, Box, Center } from '@chakra-ui/react';
-import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash } from 'react-icons/fa6';
-import { auth } from '../../firebase';
-import jwt_decode from 'jwt-decode'; // Install via npm: npm install jwt-decode
+import { Spinner, Box, Center } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../../firebase.js';
 
-// MyVideoConference Component
 export const MyVideoConference = () => {
     const tracks = useTracks(
         [
             { source: 'camera', withPlaceholder: true },
-            { source: 'microphone', withPlaceholder: true }, // Use 'microphone' instead of Track.Source.Audio
+            { source: 'microphone', withPlaceholder: true },
         ],
         { onlySubscribed: false },
     );
-
-    const audioTrack = tracks.find(track => track.source === 'microphone');
-    const videoTrack = tracks.find(track => track.source === 'camera');
-
-    const toggleAudio = () => {
-        if (audioTrack) {
-            audioTrack.isMuted ? audioTrack.unmute() : audioTrack.mute();
-        }
-    };
-
-    const toggleVideo = () => {
-        if (videoTrack) {
-            videoTrack.isEnabled ? videoTrack.disable() : videoTrack.enable();
-        }
-    };
 
     return (
         <div>
             <GridLayout tracks={tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
                 <ParticipantTile />
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-                    <IconButton
-                        onClick={toggleVideo}
-                        icon={videoTrack && videoTrack.isEnabled ? <FaVideoSlash /> : <FaVideo />}
-                        isRound
-                        aria-label="Toggle Video"
-                        m={2}
-                    />
-                    <IconButton
-                        onClick={toggleAudio}
-                        icon={audioTrack && !audioTrack.isMuted ? <FaMicrophoneSlash /> : <FaMicrophone />}
-                        isRound
-                        aria-label="Toggle Audio"
-                        m={2}
-                    />
-                </div>
             </GridLayout>
         </div>
     );
@@ -68,6 +35,7 @@ const VideoCall = ({ roomName }) => {
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     const user = auth.currentUser;
     const userId = user ? user.uid : null;
@@ -107,6 +75,13 @@ const VideoCall = ({ roomName }) => {
         fetchToken();
     }, [userId, roomName]);
 
+    const handleRoomUpdate = (room) => {
+        room.on('participantDisconnected', (participant) => {
+            console.log(`${participant.identity} has disconnected`);
+            navigate('/signin');
+        });
+    };
+
     if (loading) {
         return (
             <Center height="100vh">
@@ -131,6 +106,7 @@ const VideoCall = ({ roomName }) => {
             serverUrl={process.env.REACT_APP_WEBSOCKET_URL} // Ensure this is set correctly
             data-lk-theme="default"
             style={{ height: '100vh' }}
+            onRoomUpdate={handleRoomUpdate}  // Handle room updates
         >
             <MyVideoConference />
             <RoomAudioRenderer />

@@ -10,8 +10,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing userId or roomName' });
     }
 
-    const livekitApiKey = process.env.LIVEKIT_API_KEY;
-    const livekitSecret = process.env.LIVEKIT_SECRET_KEY;
+    const livekitApiKey = 'API5rLSGnjWN2ms';
+    const livekitSecret = 'NKeaQWzcZsrPnoI2NCCkEaPmI96f7pJ2I3feLdEvDeFE';
 
     if (!livekitApiKey || !livekitSecret) {
         console.error('Missing LiveKit API Key or Secret Key');
@@ -25,9 +25,8 @@ export default async function handler(req, res) {
         });
 
         token.addGrant({ roomJoin: true, room: roomName });
-        token.setExpiration(Math.floor(Date.now() / 1000) + (60 * 60)); // 1 hour
 
-        const jwt = token.toJwt();
+        const jwt = await token.toJwt();
 
         return res.status(200).json({ token: jwt });
     } catch (error) {

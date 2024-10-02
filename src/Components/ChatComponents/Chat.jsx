@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   Box,
-  Flex,
   Button,
   Input,
   VStack, HStack,
@@ -107,7 +106,6 @@ const Chat = ({ channel, serverId }) => {
 
   useEffect(() => {
     if (channel) {
-      console.log(channel);
       const { id } = channel;
       const messagesRef = ref(rdb, `chats/${id}/messages`);
 
@@ -308,7 +306,6 @@ const Chat = ({ channel, serverId }) => {
           ))}
         <div ref={messagesEndRef} />
       </VStack>
-      {console.log("user: ", user.uid)}
       {(serverId !== process.env.REACT_APP_DEFAULT_SERVER || user.uid !== process.env.REACT_APP_DEFAULT_SERVER_ADMIN) && (
         <HStack w="full" spacing={4} mt={4}>
           <Input
