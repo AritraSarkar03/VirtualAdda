@@ -109,7 +109,7 @@ function ServerSettings({ serverId }) {
 
                 {/* Centering the MenuList and setting it to 80% width */}
                 
-                    <MenuList w={'100%'}>
+                    <MenuList w={['138%','118%']}>
                         <MenuItem onClick={onInviteOpen} justifyContent="space-between">
                             Invite People
                             <Icon as={FaUserPlus} />
