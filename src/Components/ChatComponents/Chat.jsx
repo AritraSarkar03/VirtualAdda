@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   Box,
+  Flex,
   Button,
   Input,
   VStack, HStack,
@@ -15,8 +16,10 @@ import {
   ModalFooter,
   ModalBody,
   ModalHeader,
-  useDisclosure
+  useDisclosure,
+  Icon
 } from '@chakra-ui/react';
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { auth, db, rdb } from '../../firebase.js';
 import { doc, getDoc } from 'firebase/firestore';
 import { set, ref, push, onValue, off, update } from 'firebase/database';
@@ -266,13 +269,35 @@ const Chat = ({ channel, serverId }) => {
                       bg={dropdownBgColor}
                       boxShadow="md"
                       zIndex="1000"
+                      left={0}
                     >
-                      <Text px={4} py={2} cursor="pointer" onClick={() => handleEdit(m.id)}>
-                        Edit
-                      </Text>
-                      <Text px={4} py={2} cursor="pointer" onClick={() => handleDelete(m.id)}>
-                        Delete
-                      </Text>
+                      <HStack
+                        px={4}
+                        py={2}
+                        cursor="pointer"
+                        justifyContent="space-between"
+                        onClick={() => handleEdit(m.id)}
+                        spacing={4} // Adds space between text and icon
+                        w="100%" // Ensure it occupies full width
+                      >
+                        <Text>Edit</Text>
+                        <Icon as={FaEdit} />
+                      </HStack>
+
+                      {/* Delete Option - styled in red */}
+                      <HStack
+                        px={4}
+                        py={2}
+                        cursor="pointer"
+                        justifyContent="space-between"
+                        color="red.500"  // Apply red color for both text and icon
+                        onClick={() => handleDelete(m.id)}
+                        spacing={4} // Adds space between text and icon
+                        w="100%" // Ensure it occupies full width
+                      >
+                        <Text>Delete</Text>
+                        <Icon as={FaTrash} />
+                      </HStack>
                     </Box>
                   )}
                 </Box>
@@ -283,7 +308,7 @@ const Chat = ({ channel, serverId }) => {
           ))}
         <div ref={messagesEndRef} />
       </VStack>
-      {console.log("user: ",user.uid)}
+      {console.log("user: ", user.uid)}
       {(serverId !== process.env.REACT_APP_DEFAULT_SERVER || user.uid !== process.env.REACT_APP_DEFAULT_SERVER_ADMIN) && (
         <HStack w="full" spacing={4} mt={4}>
           <Input

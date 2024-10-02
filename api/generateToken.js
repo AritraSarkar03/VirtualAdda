@@ -1,3 +1,4 @@
+
 // api/generateToken.js
 import { AccessToken } from 'livekit-server-sdk';
 
@@ -17,16 +18,17 @@ export default async function handler(req, res) {
     // Get LiveKit credentials from environment variables
     const livekitApiKey = process.env.LIVEKIT_API_KEY; 
     const livekitSecret = process.env.LIVEKIT_SECRET_KEY;
-
+    console.log(livekitApiKey,livekitSecret);
     // Create the access token
     const token = new AccessToken(livekitApiKey, livekitSecret, {
         identity: userId, // Use the provided userId
     });
+    console.log(token);
 
     // Grant room join permissions
     token.addGrant({ roomJoin: true, room: roomName });
     token.ttl = 3600; // Token valid for 1 hour
-
+    console.log(token);
     // Return the generated token
     return res.json({ token: token.toJwt() });
 }

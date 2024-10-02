@@ -7,13 +7,15 @@ import {
     MenuDivider,
     useDisclosure,
     useColorModeValue,
+    Icon,
+    Box
 } from '@chakra-ui/react';
+import { FaAngleDown, FaUserPlus, FaUsers, FaPlus, FaEdit, FaSignOutAlt, FaTrash } from "react-icons/fa";
 import { doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { auth, db } from '../../firebase';
-import { FaAngleDown } from 'react-icons/fa';
 import { CreateChannelModal, InvitePeopleModal, MemberModal, EditModal, DeleteModal, LeaveModal } from './SettingFunctionality.jsx';
-import {Loader} from '../Layout/Loader.jsx';
+import { Loader } from '../Layout/Loader.jsx';
 // Import other modals similarly
 
 function ServerSettings({ serverId }) {
@@ -82,55 +84,84 @@ function ServerSettings({ serverId }) {
 
     const bgColor = useColorModeValue('gray.100', 'gray.700'); // Background color
     const textColor = useColorModeValue('black', 'white'); // Text color
-    const borderColor = useColorModeValue('gray.400', 'gray.500'); 
+    const borderColor = useColorModeValue('gray.400', 'gray.500');
 
     return (
-            server?(<>
-                <Menu isLazy>
-                    <MenuButton
-                        as={Button}
-                        w="100%"
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        p={1}
-                        bg={bgColor} 
-                        color={textColor} 
-                        borderRight={"1px"}
-                        borderBottom={"1px"}
-                        borderColor={borderColor} 
-                        borderRadius="xs"
-                        rightIcon={<FaAngleDown />}
-                    >
-                        {server.name}
-                    </MenuButton>
-                    <MenuList>
-                        <MenuItem onClick={onInviteOpen}>Invite People</MenuItem>
-                        <MenuItem onClick={onMemberOpen}>Member</MenuItem>
+        server ? (<>
+            <Menu isLazy>
+                <MenuButton
+                    as={Button}
+                    w="100%"
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    p={1}
+                    bg={bgColor}
+                    color={textColor}
+                    borderRight="1px"
+                    borderBottom="1px"
+                    borderColor={borderColor}
+                    borderRadius="xs"
+                    rightIcon={<FaAngleDown />}
+                >
+                    {server.name}
+                </MenuButton>
+
+                {/* Centering the MenuList and setting it to 80% width */}
+                
+                    <MenuList w={'100%'}>
+                        <MenuItem onClick={onInviteOpen} justifyContent="space-between">
+                            Invite People
+                            <Icon as={FaUserPlus} />
+                        </MenuItem>
+
+                        <MenuItem onClick={onMemberOpen} justifyContent="space-between">
+                            Member
+                            <Icon as={FaUsers} />
+                        </MenuItem>
+
                         {memberStatus !== 'member' && (
                             <>
-                                <MenuItem onClick={onCreateChannelOpen}>Create Channel</MenuItem>
+                                <MenuItem onClick={onCreateChannelOpen} justifyContent="space-between">
+                                    Create Channel
+                                    <Icon as={FaPlus} />
+                                </MenuItem>
                                 <MenuDivider />
-                                <MenuItem onClick={onEditOpen}>Edit Server</MenuItem>
+                                <MenuItem onClick={onEditOpen} justifyContent="space-between">
+                                    Edit Server
+                                    <Icon as={FaEdit} />
+                                </MenuItem>
                             </>
                         )}
-                        {memberStatus !== 'admin' && (<>
-                            <MenuItem onClick={onLeaveOpen}>Leave Server</MenuItem>
-                        </>)}
-                        {memberStatus === 'admin' && (<>
-                            <MenuItem onClick={onDeleteOpen}>Delete Server</MenuItem>
-                        </>)}
-                    </MenuList>
-                </Menu>
 
-                {/* Modals */}
-                <InvitePeopleModal isOpen={isInviteOpen} onClose={onInviteClose} serverId={server.id} />
-                <CreateChannelModal isOpen={isCreateChannelOpen} onClose={onCreateChannelClose} serverId={server.id} />
-                <EditModal isOpen={isEditOpen} onClose={onEditClose} serverId={serverId} />
-                <DeleteModal isOpen={isDeleteOpen} onClose={onDeleteClose} serverId={serverId} />
-                <MemberModal isOpen={isMemberOpen} onClose={onMemberClose} serverId={serverId} />
-                <LeaveModal isOpen={isLeaveOpen} onClose={onLeaveClose} serverId={serverId} />
-            </>): (<Loader/>)
+                        {memberStatus !== 'admin' && (
+                            <>
+                                <MenuItem onClick={onLeaveOpen} color="red.500" justifyContent="space-between">
+                                    Leave Server
+                                    <Icon as={FaSignOutAlt} />
+                                </MenuItem>
+                            </>
+                        )}
+
+                        {memberStatus === 'admin' && (
+                            <>
+                                <MenuItem onClick={onDeleteOpen} color="red.500" justifyContent="space-between">
+                                    Delete Server
+                                    <Icon as={FaTrash} />
+                                </MenuItem>
+                            </>
+                        )}
+                    </MenuList>
+         
+            </Menu>
+            {/* Modals */}
+            <InvitePeopleModal isOpen={isInviteOpen} onClose={onInviteClose} serverId={server.id} />
+            <CreateChannelModal isOpen={isCreateChannelOpen} onClose={onCreateChannelClose} serverId={server.id} />
+            <EditModal isOpen={isEditOpen} onClose={onEditClose} serverId={serverId} />
+            <DeleteModal isOpen={isDeleteOpen} onClose={onDeleteClose} serverId={serverId} />
+            <MemberModal isOpen={isMemberOpen} onClose={onMemberClose} serverId={serverId} />
+            <LeaveModal isOpen={isLeaveOpen} onClose={onLeaveClose} serverId={serverId} />
+        </>) : (<Loader />)
     );
 }
 
