@@ -226,6 +226,7 @@ const Chat = ({ channel, serverId }) => {
                   isLastMessage(messages, i, user.uid)) && (
                     <Tooltip label={m.senderName} placement="bottom-start" hasArrow>
                       <Avatar
+                        name={m.senderName}
                         onClick={() => handleViewProfile(m.sender)}
                         mr={1}
                         size="sm"

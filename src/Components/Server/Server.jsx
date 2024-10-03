@@ -12,22 +12,23 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton,
   ModalFooter,
   Divider,
   useColorModeValue,
-  Flex
+  Flex,
+  Icon,
+  AvatarBadge
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { fileUploadCss } from '../Auth/SignUp.jsx';
 import { auth, db } from '../../firebase.js';
 import { doc, setDoc, getFirestore, getDoc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore';
 import { getDownloadURL, ref, getStorage, uploadString } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { ColorModeSwitcher } from '../../ColorModeSwitcher.js';
-import {Loader} from '../Layout/Loader.jsx';
+import { Loader } from '../Layout/Loader.jsx';
+import { FiPlus } from 'react-icons/fi';
 
 const RegisterServerModal = ({ isOpen, onClose }) => {
   const [serverName, setServerName] = useState('');
@@ -78,13 +79,40 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Add a New Server</ModalHeader>
-        <ModalCloseButton />
         <ModalBody>
           <VStack h={'full'} justifyContent={'center'} spacing={'16'}>
             <form style={{ width: '100%' }} onSubmit={submitAddServerHandler}>
               <Box my={'4'} display={'flex'} justifyContent={'center'}>
-                <Avatar src={serverPhoto} size={'2xl'} />
-              </Box>
+            <Avatar
+              size="xl"
+              name={serverName}
+              src={serverPhoto}
+              cursor="pointer"
+            >
+
+              {serverPhoto === '' && (
+                <AvatarBadge
+                  boxSize="1em"
+                  bg="gray.500"
+                >
+                  <Icon as={FiPlus} boxSize={3} />
+                </AvatarBadge>
+              )}
+            </Avatar>
+
+            <Input
+              type="file"
+              accept="image/*"
+              position="absolute"
+              top={0}
+              left={0}
+              width="100%"
+              height="100%"
+              opacity={0}
+              cursor="pointer"
+              onChange={changeImageHandle}
+            />
+          </Box>
               <FormLabel htmlFor="serverName">Server Name</FormLabel>
               <Input
                 required
@@ -95,19 +123,7 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
                 type="text"
                 focusBorderColor="blue.500"
               />
-              <Box my={'4'}>
-                <FormLabel htmlFor="chooseServerPhoto">Choose Server Photo</FormLabel>
-                <Input
-                  accept="image/*"
-                  onChange={changeImageHandle}
-                  required
-                  id="chooseServerPhoto"
-                  type="file"
-                  focusBorderColor="blue.500"
-                  css={{ '&::file-selector-button': fileUploadCss }}
-                />
-              </Box>
-              <Button colorScheme="blue" my={'4'} type="submit" mx="auto" display="block">
+              <Button colorScheme="blue" my={'4'} type="submit" mx="auto" display="block" width={'full'}>
                 Add Server
               </Button>
             </form>
@@ -142,14 +158,14 @@ function Server({ serverId, onSelectServer }) {
 
   useEffect(() => {
     let isMounted = true;
-  
+
     const fetchData = async () => {
       if (user) {
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           const serverIdsObject = userDoc.data().servers || {};
           const serverIds = Object.values(serverIdsObject);
-  
+
           if (serverIds.length > 0) {
             const unsubscribeFunctions = serverIds.map((id) => {
               return onSnapshot(doc(db, 'servers', id), (serverDoc) => {
@@ -168,12 +184,12 @@ function Server({ serverId, onSelectServer }) {
                 console.error(`Error listening to server with ID ${id}:`, error);
               });
             });
-  
+
             // Stop loading when all snapshots are set up
             if (isMounted) {
               setLoading(false);
             }
-  
+
             // Clean up all snapshots when component unmounts or user changes
             return () => {
               unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
@@ -191,14 +207,14 @@ function Server({ serverId, onSelectServer }) {
         if (isMounted) setLoading(false);
       }
     };
-  
+
     fetchData();
-  
+
     return () => {
       isMounted = false;
     };
   }, [user, db]);
-  
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -274,7 +290,7 @@ function Server({ serverId, onSelectServer }) {
   }
 
   if (loading) {
-    return <Loader/>
+    return <Loader />
   }
 
   return (
@@ -364,7 +380,7 @@ function Server({ serverId, onSelectServer }) {
         pb={4}
         pr={4}
       >
-        <ColorModeSwitcher mb='3vh'/>
+        <ColorModeSwitcher mb='3vh' />
         <Tooltip label={'Profile'} placement="right">
           <Avatar
             src={userData.avatar}

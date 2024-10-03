@@ -1,31 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Stack,
-  Text, 
-  Container, 
+  Text,
+  Container,
   Heading,
-  Button, 
-  Avatar, 
-  VStack, 
-  HStack, 
-  Modal, 
-  ModalOverlay, 
-  ModalContent, 
-  ModalHeader, 
-  ModalCloseButton, 
-  ModalBody, 
-  ModalFooter, 
-  Input, 
-  useDisclosure, 
-  Flex, 
-  useToast 
+  Button,
+  Avatar,
+  VStack,
+  HStack,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Input,
+  useDisclosure,
+  Flex,
+  useToast
 } from '@chakra-ui/react';
 import { auth, db } from '../../firebase.js';
 import { doc, getDoc } from 'firebase/firestore';
 import { signOut, updateProfile } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Link, useNavigate } from 'react-router-dom';
-import { fileUploadCss } from '../Auth/SignUp.jsx';
+import { fileUploadCss } from '../Server/SettingFunctionality.jsx';
 import { RiLogoutBoxLine } from 'react-icons/ri'
 
 const Profile = () => {
@@ -115,27 +115,34 @@ const Profile = () => {
 
         <Stack justifyContent={'flex-start'} direction={['column', 'row']} alignItems={'center'} spacing={['8', '16']} padding={'8'}>
           <VStack>
-            <Avatar src={userData.avatar} boxSize={'48'} />
+            <Avatar name={userData.name} src={userData.avatar} boxSize={'48'} />
             <Button isLoading={loading} onClick={onOpen} colorScheme="blue" variant="ghost">Change Photo</Button>
           </VStack>
           <VStack spacing={'4'} alignItems={['center', 'flex-start']}>
             <HStack><Text fontWeight="bold">Name</Text><Text>{userData.name}</Text></HStack>
             <HStack><Text fontWeight="bold">Email</Text><Text>{userData.email}</Text></HStack>
             <Stack direction={['column', 'row']} alignItems={'center'}>
-              <Link to={'/updateprofile'}><Button colorScheme="blue">Update Profile</Button></Link>
-              <Link to={'/changepassword'}><Button colorScheme="blue">Change Password</Button></Link>
+              <Link to={'/updateprofile'}><Button colorScheme="blue" variant={'ghost'}>Update Profile</Button></Link>
+              <Link to={'/changepassword'}><Button colorScheme="blue" variant={'ghost'}>Change Password</Button></Link>
             </Stack>
           </VStack>
         </Stack>
         <Heading children="My Servers" size={'md'} my={'8'} />
-        <HStack spacing={4}>
-          {servers.map((item) => (
-            <VStack key={item.id}>
-              <Avatar src={item.photoURL} objectFit="cover" onClick={() => handleButtonClick(item.id)} />
-              <Text>{item.name}</Text>
-            </VStack>
-          ))}
-        </HStack>
+        {servers.length > 0 ? (
+          <>
+            <HStack spacing={4}>
+              {servers.map((item) => (
+                <VStack key={item.id}>
+                  <Avatar name={item.name} src={item.photoURL} objectFit="cover" onClick={() => handleButtonClick(item.id)} />
+                  <Text>{item.name}</Text>
+                </VStack>
+              ))}
+            </HStack>
+          </>
+        ) : (
+          <Heading children="No Server Found" size={'md'} my={'8'} />
+        )
+        }
         <ChangePhotoBox changeImageSubmitHandler={changeImageSubmitHandler} isOpen={isOpen} onClose={onClose} />
       </Container>
     </>

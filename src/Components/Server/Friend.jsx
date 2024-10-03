@@ -80,6 +80,11 @@ function Friend({isOpen, onClose}) {
   const handleAcceptRequest = async (requestId) => {
     try {
       const userRef = doc(db, 'users', user.uid);
+      const reqedUserRef = doc(db, 'users', requestId);
+      await updateDoc(reqedUserRef, {
+        friends: arrayUnion(user.uid),  // Add to friends
+        requested: arrayRemove(user.uid) // Remove from requests
+      });
       await updateDoc(userRef, {
         friends: arrayUnion(requestId),  // Add to friends
         requests: arrayRemove(requestId) // Remove from requests
@@ -96,6 +101,10 @@ function Friend({isOpen, onClose}) {
       await updateDoc(userRef, {
         requests: arrayRemove(requestId)  // Remove from requests
       });
+      const reqedUserRef = doc(db, 'users', requestId);
+      await updateDoc(reqedUserRef, {
+        requested: arrayRemove(user.uid)
+      });
       setRequests((prev) => prev.filter((request) => request.id !== requestId));
     } catch (error) {
       console.error("Error removing request:", error);
@@ -109,6 +118,11 @@ function Friend({isOpen, onClose}) {
       await updateDoc(userRef, {
         friends: arrayRemove(friendId)
       });
+      
+      const friendRef = doc(db, 'users', friendId);
+      await updateDoc(friendRef, {
+        friends: arrayRemove(user.uid)
+      });
       setFriends((prev) => prev.filter((friend) => friend.id !== friendId));
     } catch (error) {
       console.error("Error removing friend:", error);
@@ -119,8 +133,12 @@ function Friend({isOpen, onClose}) {
     if (newFriendId) {
       try {
         const userRef = doc(db, 'users', user.uid);
+        const friendRef = doc(db, 'users', newFriendId);
         await updateDoc(userRef, {
-          friends: arrayUnion(newFriendId) // Add new friend ID to requests
+          requested: arrayUnion(newFriendId) // Add new friend ID to requests
+        });
+        await updateDoc(friendRef, {
+          requests: arrayUnion(user.uid) // Add new friend ID to requests
         });
         setNewFriendId(''); // Clear the input after adding
       } catch (error) {
@@ -202,9 +220,9 @@ function Friend({isOpen, onClose}) {
               <TabPanel>
                 {requests.length > 0 ? (
                   requests.map((request, index) => (
-                    <HStack key={index} spacing={4} justify="space-between" mb={4}> {/* Added mb={4} for margin-bottom */}
+                    <VStack key={index} spacing={4} justify="space-between" mb={4}> {/* Added mb={4} for margin-bottom */}
                       <Text>{request.name} ({request.id})</Text>
-                      <HStack spacing={2}> {/* Spacing between buttons */}
+                      <HStack> {/* Spacing between buttons */}
                         <Button colorScheme="green" onClick={() => handleAcceptRequest(request.id)}>
                           Accept
                         </Button>
@@ -212,7 +230,7 @@ function Friend({isOpen, onClose}) {
                           Remove
                         </Button>
                       </HStack>
-                    </HStack>
+                    </VStack>
                   ))
                 ) : (
                   <Text>No pending requests</Text>
@@ -220,7 +238,7 @@ function Friend({isOpen, onClose}) {
               </TabPanel>
               <TabPanel>
                 <VStack spacing={4} align="stretch">
-                  <Text fontSize="lg" fontWeight="bold">Add Friend</Text>
+                  <Text fontSize="lg" fontWeight="bold">Send Request</Text>
                   <Input
                     placeholder="Enter User ID"
                     value={newFriendId}
@@ -230,7 +248,7 @@ function Friend({isOpen, onClose}) {
                     colorScheme="blue"
                     onClick={handleAddFriend}
                   >
-                    Add Friend
+                    Request Friend
                   </Button>
                 </VStack>
               </TabPanel>

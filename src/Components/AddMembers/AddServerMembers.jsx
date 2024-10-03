@@ -51,7 +51,6 @@ function ServerMembers() {
           <SignIn />
         </>
       )}
-      {/* If user is logged in, addMembers will be called in the useEffect */}
     </>
   );
 }

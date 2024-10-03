@@ -31,8 +31,21 @@ import {
 import { auth, db } from '../../firebase.js';
 import { deleteDoc, doc, getDoc, setDoc, updateDoc, arrayRemove, collection, arrayUnion } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadString } from 'firebase/storage';
-import { fileUploadCss } from '../Auth/SignUp.jsx';
 import { FaCrown, FaShieldAlt, FaUser } from 'react-icons/fa';
+
+export const fileUploadCss = {
+  cursor: 'pointer',
+  marginLeft: '-5%',
+  width: '110%',
+  border: 'none',
+  height: '100%',
+  color: '#800080',
+  backgroundColor: 'white',
+};
+
+const fileUploadStyle = {
+  '&::file-selector-button': fileUploadCss,
+};
 
 export const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
   const [channelName, setChannelName] = useState('');
@@ -187,7 +200,7 @@ export const EditModal = ({ isOpen, onClose, serverId }) => {
                   id="chooseServerPhoto"
                   type="file"
                   focusBorderColor="blue.500"
-                  css={{ '&::file-selector-button': fileUploadCss }}
+                  css={fileUploadStyle}
                 />
               </Box>
               <Button colorScheme="blue" my={'4'} type="submit" mx="auto" display="block">
@@ -249,7 +262,6 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
   const handlePromote = async () => {
     try {
       if (serverId && selectedUserId) {
-        console.log('ok');
         const serverDocRef = doc(db, 'servers', serverId);
         const serverDoc = await getDoc(serverDocRef);
         if (serverDoc.exists()) {

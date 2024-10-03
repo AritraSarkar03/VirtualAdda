@@ -3,13 +3,15 @@ import {
     Button,
     useColorModeValue,
     Flex,
-    Text
+    Text,
+    HStack
 } from '@chakra-ui/react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase.js';
 import ServerSettings from './Server/ServerSettings.jsx';
 import Friend from './Server/Friend.jsx';
+import { FaHashtag, FaVideo } from 'react-icons/fa';
 
 function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
     const bgColor = useColorModeValue('gray.100', 'gray.700');
@@ -93,7 +95,7 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                     <Button
                         w="100%"
                         justifyContent="flex-start"
-                        p={1}
+                        p={2}
                         onClick={onOpen}
                         bg={bgColor}
                         color={textColor}
@@ -109,7 +111,12 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                             <>
                                 {serverId !== process.env.REACT_APP_DEFAULT_SERVER && (
                                     <>
-                                        <Box color={textColor} px={2} fontWeight="bold"># Text Channels</Box>
+                                        <Box color={textColor} px={2} fontWeight={'md'}>
+                                        <HStack>
+                                    <FaHashtag/> 
+                                    <Text>Text Channels</Text>
+                                    </HStack>
+                                        </Box>
                                         {textChannels.map(channel => (
                                             <Button
                                                 key={channel.id}
@@ -122,8 +129,8 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                                                 color={textColor}
                                                 _hover={{ bg: buttonHoverBgColor }}
                                                 fontSize="sm"
-                                                fontWeight="medium"
-                                                pl={6} 
+                                                fontWeight="sm"
+                                                pl={8} 
                                             >
                                                 {channel.name}
                                             </Button>
@@ -155,7 +162,12 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                         {/* Section for Video Channels */}
                         {videoChannels.length > 0 && (
                             <>
-                                <Box color={textColor} px={2} fontWeight="bold"># Video Channels</Box>
+                                <Box color={textColor} px={2} fontWeight={'md'}>
+                                    <HStack>
+                                    <FaVideo/> 
+                                    <Text>Video Channels</Text>
+                                    </HStack>
+                                    </Box>
                                 {videoChannels.map(channel => (
                                     <Button
                                     key={channel.id}
@@ -168,8 +180,8 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                                     color={textColor}
                                     _hover={{ bg: buttonHoverBgColor }}
                                     fontSize="sm"
-                                    fontWeight="medium"
-                                    pl={6}
+                                    fontWeight="sm"
+                                    pl={8}
                                     >
                                         {channel.name}
                                     </Button>

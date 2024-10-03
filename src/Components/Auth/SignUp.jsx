@@ -8,29 +8,23 @@ import {
   Box,
   Avatar,
   useToast,
+  HStack,
+  Divider,
+  Icon,
+  AvatarBadge,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { auth, db, storage } from '../../firebase.js';
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getToken } from 'firebase/messaging';
-import { messaging } from '../../firebase.js';
-
-export const fileUploadCss = {
-  cursor: 'pointer',
-  marginLeft: '-5%',
-  width: '110%',
-  border: 'none',
-  height: '100%',
-  color: '#800080',
-  backgroundColor: 'white',
-};
-
-const fileUploadStyle = {
-  '&::file-selector-button': fileUploadCss,
-};
+import { FcGoogle } from 'react-icons/fc';
+import { FiPlus } from 'react-icons/fi';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -39,6 +33,9 @@ const SignUp = () => {
   const [imgPrev, setImgPrev] = useState('');
   const [image, setImage] = useState(null);
   const toast = useToast();
+
+  // Initialize Google Auth Provider
+  const provider = new GoogleAuthProvider();
 
   const changeImageHandle = (e) => {
     const file = e.target.files[0];
@@ -91,34 +88,80 @@ const SignUp = () => {
     }
   };
 
-
-  const requestNotificationPermission = async () => {
+  const googleSignupHandler = async () => {
     try {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        console.log("Notification permission granted.");
-        const token = await getToken(messaging, { vapidKey: "your-vapid-key" });
-        console.log("FCM Token:", token);
-        // Send the token to your backend to save it and use it for sending notifications
-      } else {
-        console.log("Notification permission denied.");
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user already exists in Firestore
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists()) {
+        // If new user, set the document
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName,
+          avatar: user.photoURL,
+          servers: [],
+          friends: [],
+          requests: [],
+          requested: []
+        });
       }
+
+      toast({
+        title: "Account Created.",
+        description: "You have successfully signed up with Google!",
+        status: "success",
+        duration: 1500,
+        isClosable: true,
+      });
     } catch (error) {
-      console.error("Error getting notification permission:", error);
+      toast({
+        title: "Error",
+        description: `An error occurred: ${error.message}`,
+        status: "error",
+        duration: 1500,
+        isClosable: true,
+      });
     }
   };
-
-
-  requestNotificationPermission();
 
   return (
     <Container h={'95vh'}>
       <VStack h={'full'} justifyContent={'center'} spacing={'16'}>
-        <Heading children={'Register to LearnTube'} />
-
+        <Heading children={'Register to VirtualAdda'} />
         <form style={{ width: '100%' }} onSubmit={submitHandler}>
           <Box my={'4'} display={'flex'} justifyContent={'center'}>
-            <Avatar src={imgPrev} size={'2xl'} />
+            <Avatar
+              name={name}
+              size="xl"
+              src={imgPrev}
+              cursor="pointer"
+            >
+
+              {imgPrev === '' && (
+                <AvatarBadge
+                  boxSize="1em"
+                  bg="gray.500"
+                >
+                  <Icon as={FiPlus} boxSize={3} />
+                </AvatarBadge>
+              )}
+            </Avatar>
+
+            <Input
+              type="file"
+              accept="image/*"
+              position="absolute"
+              top={0}
+              left={0}
+              width="100%"
+              height="100%"
+              opacity={0}
+              cursor="pointer"
+              onChange={changeImageHandle}
+            />
           </Box>
 
           <FormLabel htmlFor="name" children={'Name'} />
@@ -154,22 +197,26 @@ const SignUp = () => {
             focusBorderColor="blue.500"
           />
 
-          <Box my={'4'}>
-            <FormLabel htmlFor="chooseAvatar" children="Choose Avatar" />
-            <Input
-              accept="image/*"
-              onChange={changeImageHandle}
-              required
-              id="chooseAvatar"
-              type="file"
-              focusBorderColor="blue.500"
-              css={fileUploadStyle}
-            />
-          </Box>
-
-          <Button colorScheme="blue" my={'4'} type="submit">
+          <Button colorScheme="blue" my={'4'} type="submit" width="full">
             Sign Up
           </Button>
+
+          <HStack my="4">
+            <Divider />
+            <Box>OR</Box>
+            <Divider />
+          </HStack>
+
+          <Button
+            variant="outline"
+            my={'4'}
+            width="full"
+            onClick={googleSignupHandler}
+            leftIcon={<FcGoogle />}
+          >
+            Continue with Google
+          </Button>
+
           <Box>
             Already a member?{' '}
             <Link to="/signin">

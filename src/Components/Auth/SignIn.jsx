@@ -1,22 +1,27 @@
 import {
   Container,
   Heading,
+  HStack,
   VStack,
   FormLabel,
   Input,
   Button,
   Box,
+  Divider,
   useToast
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase.js'; // Adjust the path according to your project structure
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth } from '../../firebase.js';
+import { FcGoogle } from 'react-icons/fc';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const toast = useToast();
+
+  const provider = new GoogleAuthProvider();
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -40,10 +45,32 @@ const SignIn = () => {
     }
   };
 
+  const googleSigninHandler = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+
+      toast({
+        title: "Account Created.",
+        description: "You have successfully signed in with Google!",
+        status: "success",
+        duration: 1500,
+        isClosable: true,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `An error occurred: ${error.message}`,
+        status: "error",
+        duration: 1500,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
-    <Container h={'95vh'}>
+   <Container h={'95vh'}>
       <VStack h={'full'} justifyContent={'center'} spacing={'16'}>
-        <Heading children={'Welcome to VirtualAdda'} />
+        <Heading children={'Welcome to VirtualAdda'} /> 
         <form onSubmit={submitHandler} style={{ width: '100%' }}>
           <Box my={'4'}>
             <FormLabel htmlFor="email" children={'Email Address'} />
@@ -78,8 +105,25 @@ const SignIn = () => {
               />
             </Link>
           </Box>
-          <Button colorScheme="blue" my={'4'} type="submit">
+          <Button colorScheme="blue" my={'4'} type="submit" width={'full'}>
             Sign In
+          </Button>
+          {/* Divider with "OR" */}
+          <HStack my="4">
+            <Divider />
+            <Box>OR</Box>
+            <Divider />
+          </HStack>
+
+          {/* Google Sign-Up Button */}
+          <Button
+            variant="outline"
+            my={'4'}
+            width="full"
+            onClick={googleSigninHandler}
+            leftIcon={<FcGoogle />}
+          >
+            Continue with Google
           </Button>
           <Box>
             New User?{' '}

@@ -38,7 +38,7 @@ const VideoCall = ({ roomName }) => {
     const navigate = useNavigate();
 
     const user = auth.currentUser;
-    const userId = user ? user.uid : null;
+    const userId = user ? user.email : null;
 
     useEffect(() => {
         if (!userId || !roomName) {
@@ -78,7 +78,15 @@ const VideoCall = ({ roomName }) => {
     const handleRoomUpdate = (room) => {
         room.on('participantDisconnected', (participant) => {
             console.log(`${participant.identity} has disconnected`);
-            navigate('/signin');
+        });
+
+        room.on('roomDisconnected', () => {
+            console.log('Room disconnected');
+            navigate('/mypage', { state: { ChannelId: roomName } });
+        });
+
+        room.on('participantConnected', (participant) => {
+            console.log(`${participant.identity} has connected`);
         });
     };
 

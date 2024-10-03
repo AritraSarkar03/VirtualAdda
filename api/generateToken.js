@@ -10,8 +10,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing userId or roomName' });
     }
 
-    const livekitApiKey = 'API5rLSGnjWN2ms';
-    const livekitSecret = 'NKeaQWzcZsrPnoI2NCCkEaPmI96f7pJ2I3feLdEvDeFE';
+    const livekitApiKey = process.env.LIVEKIT_API_KEY;
+    const livekitSecret = process.env.LIVEKIT_API_SECRET;
 
     if (!livekitApiKey || !livekitSecret) {
         console.error('Missing LiveKit API Key or Secret Key');
