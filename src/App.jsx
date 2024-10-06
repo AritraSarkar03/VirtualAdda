@@ -19,6 +19,8 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  console.log(process.env.REACT_APP_IMG, /n process.env.REACT_APP_API_KEY, /n process.env.REACT_APP_AUTH_DOMAIN, /n process.env.REACT_APP_PROJECT_ID, /n process.env.REACT_APP_STORAGE_BUCKET, /n process.env.REACT_APP_MESSAGING_SENDER_ID, /n process.env.REACT_APP_APP_ID, /n process.env.REACT_APP_MEASUREMENT_ID, /n process.env.REACT_APP_DATABASE_URL, /n process.env.REACT_APP_SERVER, /n process.env.REACT_APP_SERVER_PHOTO, /n process.env.REACT_APP_SERVER_NAME, /n process.env.REACT_APP_SERVER_ADMIN, /n process.env.REACT_APP_WEBSOCKET_URL, /n process.env.LIVEKIT_API_KEY, /n process.env.LIVEKIT_API_SECRET)
+
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
