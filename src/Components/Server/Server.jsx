@@ -152,6 +152,7 @@ const Server = ({ serverId, onSelectServer }) => {
   const dividerColor = useColorModeValue('black', 'white');
 
   const handleButtonClick = (id) => {
+    console.log("server:",id);
     onSelectServer(id);
   };
 

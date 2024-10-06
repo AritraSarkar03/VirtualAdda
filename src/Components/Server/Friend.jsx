@@ -178,9 +178,10 @@ const Friend = ({isOpen, onClose}) => {
 
   // Function to handle checking if a chat exists or creating a new one
   const navigate = useNavigate();
-  const handleFriendChat = async (friendId) => {
-    const chatId = user.uid + "_" + friendId; // Create the chat ID for the current user and friend
-    const altChatId = friendId + "_" + user.uid; // Alternate chat ID
+  const handleFriendChat = async (friend) => {
+    const { id, name } = friend;
+    const chatId = user.uid + "_" + id; // Create the chat ID for the current user and friend
+    const altChatId = id + "_" + user.uid; // Alternate chat ID
 
     const personalChatsRef = ref(rdb, 'chats'); // Reference to the chats node
 
@@ -202,7 +203,8 @@ const Friend = ({isOpen, onClose}) => {
           setChatID(chatId);
         }
       }
-      navigate('/mypage', { state: { ChannelId: chatID } });
+      const channel = { id : chatID, name }
+      navigate('/mypage', { state: { ChannelId: channel } });
       onClose();
     } catch (error) {
       console.error("Error checking or creating chat:", error);
@@ -228,7 +230,7 @@ const Friend = ({isOpen, onClose}) => {
                 {friends.length > 0 ? (
                   friends.map((friend, index) => (
                     <HStack key={index} spacing={4} justify="space-between">
-                      <Button variant="ghost" onClick={() => handleFriendChat(friend.id)}>
+                      <Button variant="ghost" onClick={() => handleFriendChat(friend)}>
                         {friend.name}
                       </Button>
                       <Button variant='ghost' colorScheme="red" onClick={() => handleRemoveFriend(friend.id)}>

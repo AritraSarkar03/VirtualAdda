@@ -81,6 +81,7 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
     };
 
     useEffect(() => {
+        console.log(serverId);
         if (serverId) {
             const channelsCollection = collection(db, 'channels');
             const q = query(channelsCollection, where('server', '==', serverId));
@@ -142,6 +143,7 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
             <Box flex="1" overflowY="auto" p={0} m={0}>
                 {error && <Text color="red.500" p={4}>{error}</Text>}
                 {serverId === process.env.REACT_APP_DEFAULT_SERVER && (
+                    <>
                     <Button
                         w="100%"
                         justifyContent="flex-start"
@@ -153,10 +155,22 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                     >
                         Friends
                     </Button>
+                            <Button
+                                w="100%"
+                                justifyContent="flex-start"
+                                p={2}
+                                onClick={handleClick(process.env.REACT_APP_DEFAULT_CHANNEL)}
+                                bg={bgColor}
+                                color={textColor}
+                                _hover={{ bg: buttonHoverBgColor }}
+                            >
+                                Updates
+                            </Button>
+                    </>
                 )}
                 {(textChannels.length > 0 || videoChannels.length > 0) ? (
                     <>
-                        {textChannels.length > 0 && (
+                        {serverId !== process.env.REACT_APP_DEFAULT_SERVER && textChannels.length > 0 && (
                             <>
                                 <Box color={textColor} px={2} fontWeight={'md'}>
                                     <HStack>
@@ -215,7 +229,7 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                                         justifyContent="flex-start"
                                         p={1}
                                         size="xs"
-                                        onClick={() => handleClick(channel)}
+                                        onClick={() => handleVideoClick(channel)}
                                         bg={bgColor}
                                         color={textColor}
                                         _hover={{ bg: buttonHoverBgColor }}

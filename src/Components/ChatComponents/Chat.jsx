@@ -65,7 +65,7 @@ const Chat = ({ channel, serverId }) => {
   const [messageId, setMessageId] = useState(null);
   const [activeMenu, setActiveMenu] = useState(null); // State to track which message menu is active
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  
   const bgColor = useColorModeValue('white', 'gray.600'); // Background color for HStack
   const messageBgColorSender = useColorModeValue('#5A9FCF', '#4A8CC2'); // Message background for sender
   const messageBgColorReceiver = useColorModeValue('#5ABA84', '#4A9A6E'); // Message background for receiver
@@ -75,7 +75,7 @@ const Chat = ({ channel, serverId }) => {
   const placeholderColor = useColorModeValue('gray.700', 'gray.200');
   const textColor = useColorModeValue('black', 'white');
   const user = auth.currentUser;
-
+  
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!input.trim()) {
@@ -88,7 +88,7 @@ const Chat = ({ channel, serverId }) => {
         const name = (await getDoc(doc(db, 'users', user.uid))).data().name;
         const messagesRef = ref(rdb, `chats/${id}/messages`);
         const newMessageRef = push(messagesRef);
-
+        
         // Save the new message to the Realtime Database
         await set(newMessageRef, {
           sender: user.uid,
@@ -97,16 +97,16 @@ const Chat = ({ channel, serverId }) => {
           message: input,
           timestamp: new Date().toISOString()
         });
-
+        
         // Clear input after sending the message
         setInput('');
-
+        
       } catch (error) {
         console.error('Error sending message:', error);
       }
     }
   };
-
+  
   useEffect(() => {
     if (channel) {
       const { id } = channel;
@@ -310,7 +310,7 @@ const Chat = ({ channel, serverId }) => {
           ))}
         <div ref={messagesEndRef} />
       </VStack>
-      {(serverId !== process.env.REACT_APP_DEFAULT_SERVER || user.uid === process.env.REACT_APP_DEFAULT_SERVER_ADMIN) && (
+      {(serverId !== process.env.REACT_APP_DEFAULT_CHANNEL || user.uid === process.env.REACT_APP_DEFAULT_SERVER_ADMIN) && (
         <HStack w="full" spacing={4} mt={4}>
           <Input
             flex="1"

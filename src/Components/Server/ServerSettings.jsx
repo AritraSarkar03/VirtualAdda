@@ -102,7 +102,7 @@ function ServerSettings({ serverId }) {
                     borderColor={borderColor}
                     borderRadius="xs"
                     rightIcon={serverId !== process.env.REACT_APP_DEFAULT_SERVER && <FaAngleDown /> }
-                    isDisabled={serverId === process.env.REACT_APP_DEFAULT_SERVER}
+                    // isDisabled={serverId === process.env.REACT_APP_DEFAULT_SERVER}
                 >
                     {server.name}
                 </MenuButton>

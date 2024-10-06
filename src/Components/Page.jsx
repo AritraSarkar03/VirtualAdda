@@ -15,6 +15,7 @@ function Page() {
   const isTabletOrSmaller = useBreakpointValue({ base: true, xl: false });
   const [isSidebarVisible, setIsSidebarVisible] = useState(true); // Sidebar visibility state
   const [serverId, setServerId] = useState(process.env.REACT_APP_DEFAULT_SERVER);
+  
   useEffect(() => {
     if (ServerId) setServerId(ServerId);
   }, [ServerId]);
@@ -75,7 +76,7 @@ function Page() {
         <Channels serverId={serverId} onSelectChannel={handleChannelSelect} onSelectVideoChannel={handleVideoChannelSelect} />
       </HStack>
 
-
+      
       {channel ? (<VStack
         bg={bgColor}
         h="100%"
@@ -88,7 +89,7 @@ function Page() {
           },
           scrollbarWidth: 'none',
         }}
-      >
+        >
         <HStack
           w="100%"
           h={'5.5vh'}
@@ -97,8 +98,8 @@ function Page() {
           bg={headerBgColor}
           borderBottom="1px"
           borderColor={borderColor}
-        // spacing={3}
-        >
+          // spacing={3}
+          >
           {isTabletOrSmaller && (
             <Button onClick={toggleSidebar} variant="ghost">
               <AiOutlineMenu />
@@ -109,7 +110,7 @@ function Page() {
             h="full"
             display="flex"
             alignItems="center"
-          >
+            >
             {channel.name}
           </Box>
         </HStack>
@@ -117,10 +118,10 @@ function Page() {
         {videoChannel && (<VideoChannel channel={channel} serverId={serverId} flex="1" />)}
       </VStack>) :
         <VStack
-          bg={bgColor}
-          h="100%"
-          w={{ xl: '77%', base: '100%' }}
-          display={isTabletOrSmaller && isSidebarVisible ? 'none' : 'block'}
+        bg={bgColor}
+        h="100%"
+        w={{ xl: '77%', base: '100%' }}
+        display={isTabletOrSmaller && isSidebarVisible ? 'none' : 'block'}
         >
           <ChatLoader/>
         </VStack>}
