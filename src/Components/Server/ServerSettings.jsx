@@ -102,7 +102,8 @@ function ServerSettings({ serverId }) {
                     borderBottom="1px"
                     borderColor={borderColor}
                     borderRadius="xs"
-                    rightIcon={<FaAngleDown />}
+                    rightIcon={serverId === process.env.REACT_APP_DEFAULT_SERVER && <FaAngleDown /> }
+                    isDisabled={serverId === process.env.REACT_APP_DEFAULT_SERVER? 'ture' : 'false'}
                 >
                     {server.name}
                 </MenuButton>

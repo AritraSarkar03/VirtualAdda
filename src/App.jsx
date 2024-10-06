@@ -45,14 +45,8 @@ function App() {
           <Loader />
         ) : (
           <Routes>
-            <Route
-              path='/'
-              element={
-                <LightModeWrapper>
-                  <Home />
-                </LightModeWrapper>
-              }
-            />
+            <Route path='/' element={<Home/>}/>
+            
             <Route path='/mypage' element={<Page />} />
             <Route
               path='/signup'

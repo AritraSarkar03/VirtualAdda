@@ -31,11 +31,13 @@ import { Loader } from '../Layout/Loader.jsx';
 import { FiPlus } from 'react-icons/fi';
 
 const RegisterServerModal = ({ isOpen, onClose }) => {
+  const [loading, setLoading] = useState(false);
   const [serverName, setServerName] = useState('');
   const [serverPhoto, setServerPhoto] = useState('');
 
   const submitAddServerHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const user = auth.currentUser;
     try {
       const storage = getStorage();
@@ -57,10 +59,11 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
       await updateDoc(doc(db, "users", user.uid), {
         servers: arrayUnion(serverId)
       });
+      onClose();
+      setLoading(false);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
-    onClose();
   };
 
   const changeImageHandle = (e) => {
@@ -123,7 +126,14 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
                 type="text"
                 focusBorderColor="blue.500"
               />
-              <Button colorScheme="blue" my={'4'} type="submit" mx="auto" display="block" width={'full'}>
+              <Button 
+              colorScheme="blue"
+              my={'4'} 
+              type="submit" 
+              mx="auto"
+              display="block" 
+              width={'full'} 
+              isDisabled={loading}>
                 Add Server
               </Button>
             </form>

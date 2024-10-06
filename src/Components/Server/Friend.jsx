@@ -15,7 +15,8 @@ import {
   ModalContent,
   ModalHeader,
   ModalFooter,
-  ModalBody } from '@chakra-ui/react';
+  ModalBody, 
+  useToast} from '@chakra-ui/react';
 import { auth, db, rdb } from '../../firebase.js';
 import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
 import { ref, get, set, child, serverTimestamp } from 'firebase/database';
@@ -81,19 +82,30 @@ function Friend({isOpen, onClose}) {
     try {
       const userRef = doc(db, 'users', user.uid);
       const reqedUserRef = doc(db, 'users', requestId);
+  
+      // Update the requested user's friends list and remove the request
       await updateDoc(reqedUserRef, {
         friends: arrayUnion(user.uid),  // Add to friends
         requested: arrayRemove(user.uid) // Remove from requests
       });
+  
+      // Update the current user's friends list and remove the request
       await updateDoc(userRef, {
         friends: arrayUnion(requestId),  // Add to friends
         requests: arrayRemove(requestId) // Remove from requests
       });
+  
+      // Update the local requests state
       setRequests((prev) => prev.filter((request) => request.id !== requestId));
+  
+      // Update the local friends state to include the new friend
+      setFriends((prevFriends) => [...prevFriends, requestId]);
+  
     } catch (error) {
       console.error("Error accepting request:", error);
     }
   };
+  
 
   const handleRemoveRequest = async (requestId) => {
     try {
@@ -130,6 +142,8 @@ function Friend({isOpen, onClose}) {
   };
 
   const handleAddFriend = async () => {
+    const toast = useToast(); // Initialize the toast hook
+  
     if (newFriendId) {
       try {
         const userRef = doc(db, 'users', user.uid);
@@ -141,11 +155,26 @@ function Friend({isOpen, onClose}) {
           requests: arrayUnion(user.uid) // Add new friend ID to requests
         });
         setNewFriendId(''); // Clear the input after adding
+  
+        // Show success toast
+        toast({
+          title: 'Friend request sent!',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
       } catch (error) {
         console.error("Error adding friend:", error);
+        toast({
+          title: 'Failed to send friend request.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
       }
     }
   };
+  
 
   // Function to handle checking if a chat exists or creating a new one
   const navigate = useNavigate();

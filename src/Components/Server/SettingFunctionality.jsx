@@ -105,7 +105,7 @@ export const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
 
 
 export const InvitePeopleModal = ({ isOpen, onClose, serverId }) => {
-  const content = `http://localhost:3000/server/${serverId}`;
+  const content = `${process.env.REACT_APP_FRONTEND_URL}/server/${serverId}`;
   const { hasCopied, onCopy } = useClipboard(content);
 
   return (
