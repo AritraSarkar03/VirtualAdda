@@ -155,17 +155,6 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                     >
                         Friends
                     </Button>
-                            <Button
-                                w="100%"
-                                justifyContent="flex-start"
-                                p={2}
-                                onClick={handleClick(process.env.REACT_APP_DEFAULT_CHANNEL)}
-                                bg={bgColor}
-                                color={textColor}
-                                _hover={{ bg: buttonHoverBgColor }}
-                            >
-                                Updates
-                            </Button>
                     </>
                 )}
                 {(textChannels.length > 0 || videoChannels.length > 0) ? (
