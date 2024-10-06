@@ -78,6 +78,9 @@ const Chat = ({ channel, serverId }) => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
+    if (!input.trim()) {
+      return; // Don't send the message
+    }
     if (channel) {
       const { id } = channel;
       try {
@@ -307,7 +310,7 @@ const Chat = ({ channel, serverId }) => {
           ))}
         <div ref={messagesEndRef} />
       </VStack>
-      {(serverId !== process.env.REACT_APP_DEFAULT_SERVER || user.uid !== process.env.REACT_APP_DEFAULT_SERVER_ADMIN) && (
+      {(serverId !== process.env.REACT_APP_DEFAULT_SERVER || user.uid === process.env.REACT_APP_DEFAULT_SERVER_ADMIN) && (
         <HStack w="full" spacing={4} mt={4}>
           <Input
             flex="1"

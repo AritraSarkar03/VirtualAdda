@@ -34,7 +34,7 @@ function Home() {
         <Text children="VirtualAdda is great for playing games and chilling with friends, or even building a worldwide community. Customize your own space to talk, play, and hang out." />
       </VStack>
         <Image
-        src={'https://firebasestorage.googleapis.com/v0/b/virtual-adda-523b4.appspot.com/o/Illustration-with-young-people-talking-Graphics-18175733-1.png?alt=media&token=1d3de690-4076-46c3-b2ed-32b44f883d28'}/>
+        src={process.env.REACT_APP_IMG}/>
     </Container>
     <Footer/>
     </Box>

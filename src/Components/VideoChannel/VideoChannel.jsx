@@ -1,6 +1,6 @@
 import { Flex, Text, Box, useColorModeValue, VStack, Button, Spinner, Center } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase.js';
 import {
   ControlBar,
@@ -36,7 +36,7 @@ const VideoChannel = ({ channel, serverId }) => {
   const bg = useColorModeValue('white', 'gray.600');
 
   const { id } = channel;
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const user = auth.currentUser;
   const userId = user ? user.email : null;
   const roomName = id;

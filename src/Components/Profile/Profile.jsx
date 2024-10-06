@@ -70,9 +70,10 @@ const Profile = () => {
       if (!image) throw new Error('No image selected.');
 
       const storage = getStorage();
-      const storageRef = ref(storage, `profile_pictures/${user.uid}`);
+      const storageRef = ref(storage, `profile/${user.uid}`);
       const snapshot = await uploadBytes(storageRef, image);
       const downloadURL = await getDownloadURL(snapshot.ref);
+      console.log(downloadURL);
       await updateProfile(user, { photoURL: downloadURL });
       setUserData(prev => ({ ...prev, avatar: downloadURL }));
     } catch (error) {
@@ -127,9 +128,9 @@ const Profile = () => {
             </Stack>
           </VStack>
         </Stack>
-        <Heading children="My Servers" size={'md'} my={'8'} />
         {servers.length > 0 ? (
           <>
+          <Heading children="My Servers" size={'md'} my={'8'} />
             <HStack spacing={4}>
               {servers.map((item) => (
                 <VStack key={item.id}>

@@ -22,7 +22,7 @@ import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firest
 import { ref, get, set, child, serverTimestamp } from 'firebase/database';
 import { useNavigate } from 'react-router-dom';
 
-function Friend({isOpen, onClose}) {
+const Friend = ({isOpen, onClose}) => {
   const [requests, setRequests] = useState([]);
   const [friends, setFriends] = useState([]);
   const [newFriendId, setNewFriendId] = useState([]);
@@ -74,7 +74,7 @@ function Friend({isOpen, onClose}) {
     if (isOpen) { // Only fetch when modal is open
       fetchFriendsAndRequests();
     }
-  }, [isOpen, user]);
+  }, [isOpen, user, friends]);
 
 
   // Accept a friend request
@@ -141,8 +141,8 @@ function Friend({isOpen, onClose}) {
     }
   };
 
+  const toast = useToast(); // Initialize the toast hook
   const handleAddFriend = async () => {
-    const toast = useToast(); // Initialize the toast hook
   
     if (newFriendId) {
       try {
@@ -197,10 +197,6 @@ function Friend({isOpen, onClose}) {
         } else {
           // Neither exists, create a new chat with chatId
           await set(ref(rdb, `chats/${chatId}`), {
-            members: {
-              user1: user.uid,
-              user2: friendId,
-            },
             createdAt: serverTimestamp(),
           });
           setChatID(chatId);
@@ -249,8 +245,8 @@ function Friend({isOpen, onClose}) {
               <TabPanel>
                 {requests.length > 0 ? (
                   requests.map((request, index) => (
-                    <VStack key={index} spacing={4} justify="space-between" mb={4}> {/* Added mb={4} for margin-bottom */}
-                      <Text>{request.name} ({request.id})</Text>
+                    <HStack key={index} spacing={4} justify="space-between" mb={4}> {/* Added mb={4} for margin-bottom */}
+                      <Text fontWeight={'bold'}>{request.name}</Text>
                       <HStack> {/* Spacing between buttons */}
                         <Button colorScheme="green" onClick={() => handleAcceptRequest(request.id)}>
                           Accept
@@ -259,7 +255,7 @@ function Friend({isOpen, onClose}) {
                           Remove
                         </Button>
                       </HStack>
-                    </VStack>
+                    </HStack>
                   ))
                 ) : (
                   <Text>No pending requests</Text>

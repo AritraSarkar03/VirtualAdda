@@ -22,9 +22,8 @@ import {
 import React, { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { auth, db } from '../../firebase.js';
-import { doc, setDoc, getFirestore, getDoc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore';
 import { getDownloadURL, ref, getStorage, uploadString } from 'firebase/storage';
-import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { ColorModeSwitcher } from '../../ColorModeSwitcher.js';
 import { Loader } from '../Layout/Loader.jsx';
@@ -86,36 +85,36 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
           <VStack h={'full'} justifyContent={'center'} spacing={'16'}>
             <form style={{ width: '100%' }} onSubmit={submitAddServerHandler}>
               <Box my={'4'} display={'flex'} justifyContent={'center'}>
-            <Avatar
-              size="xl"
-              name={serverName}
-              src={serverPhoto}
-              cursor="pointer"
-            >
-
-              {serverPhoto === '' && (
-                <AvatarBadge
-                  boxSize="1em"
-                  bg="gray.500"
+                <Avatar
+                  size="xl"
+                  name={serverName}
+                  src={serverPhoto}
+                  cursor="pointer"
                 >
-                  <Icon as={FiPlus} boxSize={3} />
-                </AvatarBadge>
-              )}
-            </Avatar>
 
-            <Input
-              type="file"
-              accept="image/*"
-              position="absolute"
-              top={0}
-              left={0}
-              width="100%"
-              height="100%"
-              opacity={0}
-              cursor="pointer"
-              onChange={changeImageHandle}
-            />
-          </Box>
+                  {serverPhoto === '' && (
+                    <AvatarBadge
+                      boxSize="1em"
+                      bg="gray.500"
+                    >
+                      <Icon as={FiPlus} boxSize={3} />
+                    </AvatarBadge>
+                  )}
+                </Avatar>
+
+                <Input
+                  type="file"
+                  accept="image/*"
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  width="100%"
+                  height="100%"
+                  opacity={0}
+                  cursor="pointer"
+                  onChange={changeImageHandle}
+                />
+              </Box>
               <FormLabel htmlFor="serverName">Server Name</FormLabel>
               <Input
                 required
@@ -126,14 +125,14 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
                 type="text"
                 focusBorderColor="blue.500"
               />
-              <Button 
-              colorScheme="blue"
-              my={'4'} 
-              type="submit" 
-              mx="auto"
-              display="block" 
-              width={'full'} 
-              isDisabled={loading}>
+              <Button
+                colorScheme="blue"
+                my={'4'}
+                type="submit"
+                mx="auto"
+                display="block"
+                width={'full'}
+                isDisabled={loading}>
                 Add Server
               </Button>
             </form>
@@ -144,7 +143,7 @@ const RegisterServerModal = ({ isOpen, onClose }) => {
   );
 };
 
-function Server({ serverId, onSelectServer }) {
+const Server = ({ serverId, onSelectServer }) => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -162,68 +161,53 @@ function Server({ serverId, onSelectServer }) {
 
   const [servers, setServers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const auth = getAuth();
-  const db = getFirestore();
   const user = auth.currentUser;
 
-  useEffect(() => {
-    let isMounted = true;
+  const fetchServers = async (serverIds) => {
+    console.log('helo3');
+    const serverPromises = serverIds.map(async (id) => {
+      const serverDoc = await getDoc(doc(db, 'servers', id));
+      if (serverDoc.exists()) {
+        return { ...serverDoc.data(), id }; // Include the ID in the returned object
+      } else {
+        console.warn(`Server document with ID ${id} does not exist.`);
+        return null; // Handle non-existent documents
+      }
+    });
 
-    const fetchData = async () => {
-      if (user) {
-        try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
+    // Wait for all server data to be fetched
+    const servers = await Promise.all(serverPromises);
+    // Filter out any null values
+    const validServers = servers.filter(server => server !== null);
+    
+    // Update state with the fetched servers
+    setServers(validServers);
+  };
+
+
+  useEffect(() => {
+    console.log("helo2");
+    const user = auth.currentUser;
+    if (user) {
+      // Listen for changes to the user's document
+      const unsubscribeUser = onSnapshot(doc(db, 'users', user.uid), async (userDoc) => {
+        if (userDoc.exists()) {
           const serverIdsObject = userDoc.data().servers || {};
           const serverIds = Object.values(serverIdsObject);
 
-          if (serverIds.length > 0) {
-            const unsubscribeFunctions = serverIds.map((id) => {
-              return onSnapshot(doc(db, 'servers', id), (serverDoc) => {
-                if (isMounted) {
-                  if (serverDoc.exists()) {
-                    const serverData = serverDoc.data();
-                    setServers(prevServers => {
-                      const updatedServers = prevServers.filter(s => s.id !== id); // Remove old data for the same server ID
-                      return [...updatedServers, { ...serverData, id }]; // Add updated data
-                    });
-                  } else {
-                    console.warn(`Document with ID ${id} does not exist.`);
-                  }
-                }
-              }, (error) => {
-                console.error(`Error listening to server with ID ${id}:`, error);
-              });
-            });
-
-            // Stop loading when all snapshots are set up
-            if (isMounted) {
-              setLoading(false);
-            }
-
-            // Clean up all snapshots when component unmounts or user changes
-            return () => {
-              unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
-            };
-          } else {
-            if (isMounted) {
-              setLoading(false);
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching servers:', error);
-          if (isMounted) setLoading(false);
+          // Fetch server data when user data changes
+          await fetchServers(serverIds);
+        } else {
+          console.warn(`User document does not exist.`);
         }
-      } else {
-        if (isMounted) setLoading(false);
-      }
-    };
+      }, (error) => {
+        console.error('Error listening to user document:', error);
+      });
 
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user, db]);
+      // Cleanup: Call unsubscribeUser when the component unmounts
+      return () => unsubscribeUser();
+    }
+  }, []);
 
 
   useEffect(() => {
@@ -239,7 +223,7 @@ function Server({ serverId, onSelectServer }) {
       setLoading(false);
     };
     fetchUserData();
-  }, [db, user]);
+  }, [user]);
   const handleProfileClick = () => {
     navigate('/profile');
   };
@@ -271,7 +255,7 @@ function Server({ serverId, onSelectServer }) {
     };
 
     checkServer();
-  }, [serverId, servers, db]);
+  }, [serverId, servers]);
 
   useEffect(() => {
     let interval;
@@ -304,104 +288,104 @@ function Server({ serverId, onSelectServer }) {
   }
 
   return (
-    <Box
-      w="fit-content" // Adjust width to fit content
-      h="100vh"
-      bg={bgColor}
-      p={2}
-      position="relative"
-      overflow="auto"
-      css={{
-        '&::-webkit-scrollbar': {
-          display: 'none',
-        },
-        scrollbarWidth: 'none',
-      }}
-    >
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-      >
+    <VStack spacing={0} m={0} p={0}>
+          {console.log(process.env.REACT_APP_DEFAULT_SERVER)}
         <Tooltip label={process.env.REACT_APP_DEFAULT_SERVER_NAME} placement="right">
           <Avatar
-            src={process.env.REACT_APP_DEFAULT_SERVER_PHOTO}
+            src={process.env.REACT_APP_SERVER_PHOTO}
             objectFit="cover"
             border={serverId === process.env.REACT_APP_DEFAULT_SERVER ? '2px solid blue' : 'none'}
             onClick={() => handleButtonClick(process.env.REACT_APP_DEFAULT_SERVER)}
             bg={buttonBgColor}
-            mb={2}
+            my={2}
           />
         </Tooltip>
-        <Divider borderColor={dividerColor} mb={2} />
-        {servers.map((item, index) => (
-          <Tooltip label={item.name} placement="right" key={index}>
+        <Divider borderColor={dividerColor} mb={2} w={'85%'}/>
+      <Box
+        w="fit-content"
+        h="100vh"
+        bg={bgColor}
+        p={2}
+        position="relative"
+        overflow="auto"
+        css={{
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          scrollbarWidth: 'none',
+        }}
+      >
+        <Box display="flex" flexDirection="column" alignItems="center">
+          {servers.map((item, index) => (
+            <Tooltip label={item.name} placement="right" key={index}>
+              <Avatar
+                src={item.photoURL}
+                objectFit="cover"
+                border={serverId === item.id ? '2px solid blue' : 'none'}
+                onClick={() => handleButtonClick(item.id)}
+                bg={buttonBgColor}
+                mb={2}
+              />
+            </Tooltip>
+          ))}
+        </Box>
+        {!isAdded &&
+          <Tooltip label={newServer.name} placement="right">
             <Avatar
-              src={item.photoURL}
+              src={newServer.photoURL}
               objectFit="cover"
-              border={serverId === item.id ? '2px solid blue' : 'none'}
-              onClick={() => handleButtonClick(item.id)}
+              border={serverId === newServer.id ? '2px solid blue' : 'none'}
+              onClick={() => handleButtonClick(newServer.id)}
               bg={buttonBgColor}
               mb={2}
             />
+          </Tooltip>}
+
+        {servers.length > 0 && (<Divider borderColor={dividerColor} />)}
+
+        <Flex direction="column" align="center" mt={4} gap={2}>
+          <Tooltip label="Add Server" placement="right">
+            <Button
+              variant="unstyled"
+              onClick={handleAddServer}
+              bg={buttonBgColor}
+              borderRadius="2xl"
+              w="100%"
+              h="50px"
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              aria-label="Add Server"
+            >
+              <FaPlus color="green" size="50%" />
+            </Button>
           </Tooltip>
-        ))}
+        </Flex>
       </Box>
-      {!isAdded &&
-        <Tooltip label={newServer.name} placement="right">
-          <Avatar
-            src={newServer.photoURL}
-            objectFit="cover"
-            border={serverId === newServer.id ? '2px solid blue' : 'none'}
-            onClick={() => handleButtonClick(newServer.id)}
-            bg={buttonBgColor}
-            mb={2}
-          />
-        </Tooltip>}
 
-      {servers.length > 0 && (<Divider borderColor={dividerColor} />)}
-
-      <Flex direction="column" align="center" mt={4} gap={2}>
-        <Tooltip label="Add Server" placement="right">
-
-          <Button
-            variant="unstyled"
-            onClick={handleAddServer}
-            bg={buttonBgColor}
-            borderRadius="2xl"
-            w="100%"
-            h="50px"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <FaPlus color="green" size="50%" />
-          </Button>
-        </Tooltip>
-
-      </Flex>
       <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        position="absolute"
-        bottom="0"
-        width="100%"
-        pb={4}
-        pr={4}
+        w="fit-content"
+        bg={bgColor}
+        p={2}
+        position="relative"
       >
-        <ColorModeSwitcher mb='3vh' />
-        <Tooltip label={'Profile'} placement="right">
-          <Avatar
-            src={userData.avatar}
-            size="sm"
-            objectFit="cover"
-            bg={buttonBgColor}
-            mb={2}
-            onClick={handleProfileClick}
-          />
-        </Tooltip>
+        <Flex direction="column" align="center" justify="flex-start">
+          <ColorModeSwitcher mb='3vh' />
+
+          <Tooltip label={'Profile'} placement="right">
+            <Avatar
+              src={userData.avatar}
+              size="sm"
+              objectFit="cover"
+              bg={buttonBgColor}
+              onClick={handleProfileClick}
+              aria-label="Open Profile"
+            />
+          </Tooltip>
+        </Flex>
       </Box>
+
+
       <Modal isOpen={isModalVisible} onClose={() => setIsModalVisible(false)} isCentered size="sm">
         <ModalOverlay />
         <ModalContent>
@@ -416,7 +400,7 @@ function Server({ serverId, onSelectServer }) {
         </ModalContent>
       </Modal>
       <RegisterServerModal isOpen={isOpen} onClose={onClose} />
-    </Box>
+    </VStack>
   );
 }
 

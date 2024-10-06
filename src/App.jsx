@@ -12,20 +12,10 @@ import Page from './Components/Page.jsx';
 import AddServerMembers from './Components/AddMembers/AddServerMembers.jsx';
 import OthersProfile from './Components/Profile/OthersProfile.jsx';
 import { Loader } from './Components/Layout/Loader.jsx';
-import { ChakraProvider, useColorMode } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import AboutUs from './Components/About/AboutUs.jsx';
 
-const LightModeWrapper = ({ children }) => {
-  // Hook to set the color mode to light
-  const { setColorMode } = useColorMode();
-  useEffect(() => {
-    setColorMode('light'); // Set to light mode
-  }, [setColorMode]);
-
-  return <>{children}</>;
-};
-
-function App() {
+const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 

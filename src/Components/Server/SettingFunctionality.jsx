@@ -693,9 +693,7 @@ export const DeleteModal = ({ isOpen, onClose, serverId }) => {
       <ModalContent>
         <ModalHeader>Delete Server</ModalHeader>
         <ModalBody>
-          <Text
-            value={'Do you want to delete the server parmanently'}
-          />
+          <Text>Do you want to delete the server parmanently</Text>
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="red" mr={3} onClick={handleDelete}>

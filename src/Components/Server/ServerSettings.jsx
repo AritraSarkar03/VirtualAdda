@@ -7,8 +7,7 @@ import {
     MenuDivider,
     useDisclosure,
     useColorModeValue,
-    Icon,
-    Box
+    Icon
 } from '@chakra-ui/react';
 import { FaAngleDown, FaUserPlus, FaUsers, FaPlus, FaEdit, FaSignOutAlt, FaTrash } from "react-icons/fa";
 import { doc, getDoc } from 'firebase/firestore';
@@ -102,8 +101,8 @@ function ServerSettings({ serverId }) {
                     borderBottom="1px"
                     borderColor={borderColor}
                     borderRadius="xs"
-                    rightIcon={serverId === process.env.REACT_APP_DEFAULT_SERVER && <FaAngleDown /> }
-                    isDisabled={serverId === process.env.REACT_APP_DEFAULT_SERVER? 'ture' : 'false'}
+                    rightIcon={serverId !== process.env.REACT_APP_DEFAULT_SERVER && <FaAngleDown /> }
+                    isDisabled={serverId === process.env.REACT_APP_DEFAULT_SERVER}
                 >
                     {server.name}
                 </MenuButton>

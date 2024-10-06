@@ -13,8 +13,9 @@ import {
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth } from '../../firebase.js';
+import { auth, db } from '../../firebase.js';
 import { FcGoogle } from 'react-icons/fc';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -47,11 +48,26 @@ const SignIn = () => {
 
   const googleSigninHandler = async () => {
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log(user)
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists()) {
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName,
+          avatar: user.photoURL,
+          servers: [],
+          friends: [],
+          requests: [],
+          requested: []
+        });
+      }
 
       toast({
         title: "Account Created.",
-        description: "You have successfully signed in with Google!",
+        description: "You have successfully signed up with Google!",
         status: "success",
         duration: 1500,
         isClosable: true,

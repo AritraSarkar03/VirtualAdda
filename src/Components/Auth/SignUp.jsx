@@ -32,25 +32,27 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [imgPrev, setImgPrev] = useState('');
   const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false); // Loading state
   const toast = useToast();
 
-  // Initialize Google Auth Provider
   const provider = new GoogleAuthProvider();
 
   const changeImageHandle = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
 
-    reader.readAsDataURL(file);
-
-    reader.onloadend = () => {
-      setImgPrev(reader.result);
-      setImage(file);
-    };
+    if (file) {
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setImgPrev(reader.result);
+        setImage(file);
+      };
+    }
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -59,6 +61,7 @@ const SignUp = () => {
       const imageRef = ref(storage, `profile/${user.uid}`);
       await uploadBytes(imageRef, image);
       const imageUrl = await getDownloadURL(imageRef);
+      console.log("img:",imageUrl);
 
       // Store user information in Firestore
       await setDoc(doc(db, "users", user.uid), {
@@ -85,6 +88,8 @@ const SignUp = () => {
         duration: 1500,
         isClosable: true,
       });
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -92,11 +97,9 @@ const SignUp = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
-      // Check if user already exists in Firestore
+      console.log(user)
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (!userDoc.exists()) {
-        // If new user, set the document
         await setDoc(doc(db, "users", user.uid), {
           uid: user.uid,
           email: user.email,
@@ -132,19 +135,15 @@ const SignUp = () => {
       <VStack h={'full'} justifyContent={'center'} spacing={'16'}>
         <Heading children={'Register to VirtualAdda'} />
         <form style={{ width: '100%' }} onSubmit={submitHandler}>
-          <Box my={'4'} display={'flex'} justifyContent={'center'}>
+          <Box my={'4'} display={'flex'} justifyContent={'center'} position="relative">
             <Avatar
               name={name}
               size="xl"
               src={imgPrev}
               cursor="pointer"
             >
-
               {imgPrev === '' && (
-                <AvatarBadge
-                  boxSize="1em"
-                  bg="gray.500"
-                >
+                <AvatarBadge boxSize="1em" bg="gray.500">
                   <Icon as={FiPlus} boxSize={3} />
                 </AvatarBadge>
               )}
@@ -164,7 +163,7 @@ const SignUp = () => {
             />
           </Box>
 
-          <FormLabel htmlFor="name" children={'Name'} />
+          <FormLabel htmlFor="name">Name</FormLabel>
           <Input
             required
             id="name"
@@ -175,7 +174,7 @@ const SignUp = () => {
             focusBorderColor="blue.500"
           />
 
-          <FormLabel htmlFor="email" children={'Email Address'} />
+          <FormLabel htmlFor="email">Email Address</FormLabel>
           <Input
             required
             id="email"
@@ -186,7 +185,7 @@ const SignUp = () => {
             focusBorderColor="blue.500"
           />
 
-          <FormLabel htmlFor="password" children={'Password'} />
+          <FormLabel htmlFor="password">Password</FormLabel>
           <Input
             required
             id="password"
@@ -197,7 +196,7 @@ const SignUp = () => {
             focusBorderColor="blue.500"
           />
 
-          <Button colorScheme="blue" my={'4'} type="submit" width="full">
+          <Button colorScheme="blue" my={'4'} type="submit" width="full" isLoading={loading}>
             Sign Up
           </Button>
 

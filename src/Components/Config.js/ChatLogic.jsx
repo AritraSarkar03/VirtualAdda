@@ -1,3 +1,21 @@
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
+
+ export const monitorDocument = (collectionName, docId) => {
+  const docRef = doc(db, collectionName, docId);
+
+  const unsubscribe = onSnapshot(docRef, (doc) => {
+    if (doc.exists()) {
+      console.log("Current data: ", doc.data());
+    } else {
+      console.log("No such document!");
+    }
+  }, (error) => {
+    console.error("Error fetching document:", error);
+  });
+  return unsubscribe;
+};
+
 export const isSameSenderMargin = (messages, m, i, userId) => {
   if (i < messages.length - 1) {
     if (messages[i + 1].sender === m.sender && messages[i].sender !== userId) {
@@ -51,3 +69,4 @@ export const isNewTime = (newTime, i, prevTime) => {
     return false;
   }
 };
+
