@@ -293,7 +293,7 @@ const Server = ({ serverId, onSelectServer }) => {
           {console.log(process.env.REACT_APP_DEFAULT_SERVER)}
         <Tooltip label={process.env.REACT_APP_DEFAULT_SERVER_NAME} placement="right">
           <Avatar
-            src={process.env.REACT_APP_SERVER_PHOTO}
+            src={process.env.REACT_APP_DEFAULT_SERVER_PHOTO}
             objectFit="cover"
             border={serverId === process.env.REACT_APP_DEFAULT_SERVER ? '2px solid blue' : 'none'}
             onClick={() => handleButtonClick(process.env.REACT_APP_DEFAULT_SERVER)}
