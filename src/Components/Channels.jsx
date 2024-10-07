@@ -170,7 +170,8 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                     </>
                 )}
                 {serverId !== process.env.REACT_APP_DEFAULT_SERVER &&
-                    (textChannels.length > 0 || videoChannels.length > 0) ? (
+                    <>
+                {(textChannels.length > 0 || videoChannels.length > 0) ? (
                     <>
                         {textChannels.length > 0 && (
                             <>
@@ -261,8 +262,9 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                         )}
                     </>
                 ) : (
-                    <Box color={textColor} p={4}>No channels found.</Box>
-                )}
+                    <Box color={textColor} p={4}>No channels found.</Box>)}
+                    </>
+                }
             </Box>
             <Friend isOpen={isOpen} onClose={onClose} />
             <EditModal isOpen={isEditOpen} onClose={onEditClose} channel={selectedChannel} />
