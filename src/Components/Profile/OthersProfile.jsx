@@ -41,7 +41,7 @@ const OthersProfile = () => {
   }, [userID]);
 
   const [isFriend, setIsFriend] = useState(false);
-  const [isRequested, setIsRequested] = useState(true);
+  const [isRequested, setIsRequested] = useState(false);
   const user = auth.currentUser; // Replace with logic to get the logged-in user ID
 
   useEffect(() => {
