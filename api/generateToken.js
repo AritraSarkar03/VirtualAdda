@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     }
 
     const livekitApiKey = process.env.LIVEKIT_API_KEY;
-    const livekitSecret = process.env.LIVEKIT_API_SECRET;
+    const livekitSecret = process.env.LIVEKIT_SECRET_KEY;
 
     if (!livekitApiKey || !livekitSecret) {
         console.error('Missing LiveKit API Key or Secret Key');
