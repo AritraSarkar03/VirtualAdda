@@ -414,7 +414,7 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
     };
 
     fetchUserData();
-  }, [user, userID]);
+  }, [user, selectedUserId]);
   const handleAddFriend = async () => {
     if (user && !isFriend) {
       try {
