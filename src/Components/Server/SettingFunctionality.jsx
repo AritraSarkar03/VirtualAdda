@@ -218,7 +218,7 @@ export const EditModal = ({ isOpen, onClose, serverId }) => {
 
 
 export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
- 
+
   const [admin, setAdmin] = useState(null);
   const [moderators, setModerators] = useState([]);
   const [members, setMembers] = useState([]);
@@ -272,16 +272,16 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
           const members = Array.isArray(data?.members?.member)
             ? data.members.member
             : [];
-  
+
           // Remove user from members and add to moderators
           const updatedMembers = members.filter(id => id !== selectedUserId);
           const updatedModerators = [...moderators, selectedUserId];
-  
+
           await updateDoc(serverDocRef, {
             'members.moderator': updatedModerators,
             'members.member': updatedMembers,
           });
-  
+
           toast({
             title: "User promoted.",
             description: "User promoted successfully.",
@@ -301,7 +301,7 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
       });
     }
   };
-  
+
   const handleDemote = async () => {
     try {
       if (serverId && selectedUserId) {
@@ -315,16 +315,16 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
           const members = Array.isArray(data?.members?.member)
             ? data.members.member
             : [];
-  
+
           // Remove user from moderators and add to members
           const updatedModerators = moderators.filter(id => id !== selectedUserId);
           const updatedMembers = [...members, selectedUserId];
-  
+
           await updateDoc(serverDocRef, {
             'members.moderator': updatedModerators,
             'members.member': updatedMembers,
           });
-  
+
           toast({
             title: "User demoted.",
             description: "User demoted successfully.",
@@ -332,8 +332,8 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
             duration: 5000,
             isClosable: true,
           });
-  
-          
+
+
         }
       }
     } catch (error) {
@@ -346,7 +346,7 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
       });
     }
   };
-  
+
 
   const handleKick = async () => {
     try {
@@ -391,37 +391,78 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
       });
     }
   };
+  const [isFriend, setIsFriend] = useState(false);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userDoc = doc(db, 'users', user.uid); // Assuming users are stored in the "users" collection
+        const userSnap = await getDoc(userDoc);
 
-  const handleAddFriend = async () => {
-    try {
-      console.log(selectedUserId);
-      const userDocRef = doc(db, 'users', selectedUserId);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
 
-      // Get the target user's document
-      const userSnapshot = await getDoc(userDocRef);
-  
-      if (userSnapshot.exists()) {
-        // Update the requests array by adding the current user's UID
-        await updateDoc(userDocRef, {
-          requests: arrayUnion(user.uid)
-        });
-        
+          // Check if the userIdToCheck is in the current user's friends array
+          if (userData.friends && Array.isArray(userData.friends)) {
+            setIsFriend(userData.friends.includes(selectedUserId));
+          }
+        } else {
+          console.log('No such user!');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
       }
-      toast({
-        title: "Request Sent",
-        description: "User was asked to accept request.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-    } catch (error) {
-      toast({
-        title: "Error.",
-        description: "Error in sending request.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+    };
+
+    fetchUserData();
+  }, [user, userID]);
+  const handleAddFriend = async () => {
+    if (user && !isFriend) {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        const reqUserRef = doc(db, 'users', selectedUserId);
+
+        // Get current user's data to check for arrays
+        const userSnapshot = await getDoc(userRef);
+        const reqUserSnapshot = await getDoc(reqUserRef);
+
+        const currentUserData = userSnapshot.exists() ? userSnapshot.data() : {};
+        const reqUserData = reqUserSnapshot.exists() ? reqUserSnapshot.data() : {};
+
+        const currentUserRequested = currentUserData.requested || [];
+        const reqUserRequests = reqUserData.requests || [];
+
+        // Update the current user's 'requested' array
+        await updateDoc(userRef, {
+          requested: [...currentUserRequested, userID],
+        });
+
+        // Update the other user's 'requests' array
+        await updateDoc(reqUserRef, {
+          requests: [...reqUserRequests, user.uid],
+        });
+
+        setIsRequested(true);
+
+        // Success toast
+        toast({
+          title: "Request Sent",
+          description: "You have successfully added a new friend.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } catch (error) {
+        console.error('Error adding friend:', error);
+
+        // Error toast
+        toast({
+          title: "Error",
+          description: "An error occurred while adding a friend.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     }
   };
 
@@ -446,10 +487,10 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
                   >
                     {admin.name} <Tag ml={2}><FaCrown /></Tag>
                   </MenuButton>
-                  {user.uid !== selectedUserId && 
-                  <MenuList>
-                    <MenuItem onClick={()=>handleAddFriend()}>Add Friend</MenuItem>
-                  </MenuList>}
+                  {user.uid !== selectedUserId &&
+                    <MenuList>
+                      <MenuItem onClick={() => handleAddFriend()}>Add Friend</MenuItem>
+                    </MenuList>}
                 </Menu>
               )}
               {moderators.map((moderator, index) => (
@@ -461,17 +502,17 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
                   >
                     {moderator.name} <Tag ml={2}><FaShieldAlt /></Tag>
                   </MenuButton>
-                  {user.uid !== selectedUserId && 
+                  {user.uid !== selectedUserId &&
                     <MenuList>
                       <MenuItem onClick={handleAddFriend}>Add Friend</MenuItem>
                       {user.uid === admin.uid && <>
-                    <MenuItem onClick={() => handleDemote()}>
-                      Demote
-                    </MenuItem>
-                    <MenuItem onClick={handleKick}>Kick</MenuItem>
-                    </>}
-                      </MenuList>
-                 }
+                        <MenuItem onClick={() => handleDemote()}>
+                          Demote
+                        </MenuItem>
+                        <MenuItem onClick={handleKick}>Kick</MenuItem>
+                      </>}
+                    </MenuList>
+                  }
                 </Menu>
               ))}
               {members.map((member, index) => (
@@ -483,19 +524,19 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
                   >
                     {member.name} <Tag ml={2}><FaUser /></Tag>
                   </MenuButton>
-                 
-                  {user.uid !== selectedUserId && 
+
+                  {user.uid !== selectedUserId &&
                     <MenuList>
                       <MenuItem onClick={handleAddFriend}>Add Friend</MenuItem>
                       {user.uid === admin.uid && <>
-                    <MenuItem onClick={() => handlePromote()}>
-                      Promote
-                    </MenuItem>
-                    <MenuItem onClick={handleKick}>Kick</MenuItem>
-                    </>}
-                      </MenuList>
-                 }
-                 
+                        <MenuItem onClick={() => handlePromote()}>
+                          Promote
+                        </MenuItem>
+                        <MenuItem onClick={handleKick}>Kick</MenuItem>
+                      </>}
+                    </MenuList>
+                  }
+
                 </Menu>
               ))}
             </Flex>
@@ -642,16 +683,16 @@ export const MemberSettingsModal = ({ isOpen, onClose, serverId, userId }) => {
       <ModalContent>
         <ModalBody>
           <Flex direction="column" align="center" gap={4}>
-            <Button 
-              variant="ghost" 
-              onClick={handlePromoteOrDemote} 
+            <Button
+              variant="ghost"
+              onClick={handlePromoteOrDemote}
               isDisabled={loading}
             >
               {isModerator ? 'Demote' : 'Promote'}
             </Button>
-            <Button 
-              variant="ghost" 
-              onClick={handleKick} 
+            <Button
+              variant="ghost"
+              onClick={handleKick}
               isDisabled={loading}
             >
               Kick
@@ -678,7 +719,7 @@ export const DeleteModal = ({ isOpen, onClose, serverId }) => {
         }
 
         await deleteDoc(serverDocRef);
-       
+
       }
     } catch (e) {
       console.error("Error deleting document: ", e);
@@ -711,36 +752,36 @@ export const LeaveModal = ({ isOpen, onClose, serverId }) => {
     try {
       const user = auth.currentUser;
       if (!user) throw new Error('No user is currently logged in.');
-  
+
       const serverRef = doc(db, 'servers', serverId);
       const serverDoc = await getDoc(serverRef);
-  
+
       if (serverDoc.exists()) {
         const data = serverDoc.data();
         const { moderator, member } = data?.members || {};
-  
+
         const updates = [];
-  
+
         if (moderator.includes(user.uid)) {
           // Remove from moderator
           updates.push(updateDoc(serverRef, { 'members.moderator': arrayRemove(user.uid) }));
         }
-  
+
         if (member.includes(user.uid)) {
           // Remove from member
           updates.push(updateDoc(serverRef, { 'members.member': arrayRemove(user.uid) }));
         }
-  
+
         // Update user's servers array
         updates.push(updateDoc(doc(db, 'users', user.uid), {
           servers: arrayRemove(serverId)
         }));
-  
+
         if (updates.length > 0) {
           // Execute all update operations
           await Promise.all(updates);
-        } 
-      } 
+        }
+      }
     } catch (e) {
       console.error("Error leaving the server:", e);
     }
