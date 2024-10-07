@@ -46,6 +46,7 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
     const handleClick = (channel) => {
         const { id, name } = channel;
         onSelectChannel({ id, name });
+        console.log("hi2");
     };
 
     const handleVideoClick = (channel) => {
@@ -144,22 +145,34 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                 {error && <Text color="red.500" p={4}>{error}</Text>}
                 {serverId === process.env.REACT_APP_DEFAULT_SERVER && (
                     <>
-                    <Button
-                        w="100%"
-                        justifyContent="flex-start"
-                        p={2}
-                        onClick={onOpen}
-                        bg={bgColor}
-                        color={textColor}
-                        _hover={{ bg: buttonHoverBgColor }}
-                    >
-                        Friends
-                    </Button>
+                        <Button
+                            w="100%"
+                            justifyContent="flex-start"
+                            p={2}
+                            onClick={onOpen}
+                            bg={bgColor}
+                            color={textColor}
+                            _hover={{ bg: buttonHoverBgColor }}
+                        >
+                            Friends
+                        </Button>
+                        <Button
+                            w="100%"
+                            justifyContent="flex-start"
+                            p={2}
+                            onClick={() => handleClick(process.env.REACT_APP_DEFAULT_CHANNEL)}
+                            bg={bgColor}
+                            color={textColor}
+                            _hover={{ bg: buttonHoverBgColor }}
+                        >
+                            Updates
+                        </Button>
                     </>
                 )}
-                {(textChannels.length > 0 || videoChannels.length > 0) ? (
+                {serverId !== process.env.REACT_APP_DEFAULT_SERVER &&
+                    (textChannels.length > 0 || videoChannels.length > 0) ? (
                     <>
-                        {serverId !== process.env.REACT_APP_DEFAULT_SERVER && textChannels.length > 0 && (
+                        {textChannels.length > 0 && (
                             <>
                                 <Box color={textColor} px={2} fontWeight={'md'}>
                                     <HStack>
@@ -213,36 +226,36 @@ function Channels({ serverId, onSelectChannel, onSelectVideoChannel }) {
                                 </Box>
                                 {videoChannels.map(channel => (
                                     <Flex key={channel.id} justifyContent="space-between" alignItems="center" w="95%">
-                                    <Button
-                                        w="90%"
-                                        justifyContent="flex-start"
-                                        p={1}
-                                        size="xs"
-                                        onClick={() => handleVideoClick(channel)}
-                                        bg={bgColor}
-                                        color={textColor}
-                                        _hover={{ bg: buttonHoverBgColor }}
-                                        fontSize="sm"
-                                        fontWeight="sm"
-                                        pl={8}
-                                    >
-                                        {channel.name}
-                                    </Button>
-                                    <Flex alignItems="center">
-                                        <Icon
-                                            as={FaEdit}
-                                            cursor="pointer"
-                                            onClick={() => openEditModal(channel)}
-                                        />
-                                        <Icon
-                                            as={FaTrash}
-                                            cursor="pointer"
-                                            onClick={() => handleDeleteChannel(channel.id)}
-                                            color="red.500"
-                                            ml={5}
-                                        />
+                                        <Button
+                                            w="90%"
+                                            justifyContent="flex-start"
+                                            p={1}
+                                            size="xs"
+                                            onClick={() => handleVideoClick(channel)}
+                                            bg={bgColor}
+                                            color={textColor}
+                                            _hover={{ bg: buttonHoverBgColor }}
+                                            fontSize="sm"
+                                            fontWeight="sm"
+                                            pl={8}
+                                        >
+                                            {channel.name}
+                                        </Button>
+                                        <Flex alignItems="center">
+                                            <Icon
+                                                as={FaEdit}
+                                                cursor="pointer"
+                                                onClick={() => openEditModal(channel)}
+                                            />
+                                            <Icon
+                                                as={FaTrash}
+                                                cursor="pointer"
+                                                onClick={() => handleDeleteChannel(channel.id)}
+                                                color="red.500"
+                                                ml={5}
+                                            />
+                                        </Flex>
                                     </Flex>
-                                </Flex>
                                 ))}
                             </>
                         )}
