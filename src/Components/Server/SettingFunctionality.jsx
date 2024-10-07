@@ -414,7 +414,7 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
     };
 
     fetchUserData();
-  }, [user, selectedUserId]);
+  }, [user, userID]);
   const handleAddFriend = async () => {
     if (user && !isFriend) {
       try {
@@ -433,15 +433,13 @@ export const MemberModal = ({ isOpen, onClose, serverId, userId }) => {
 
         // Update the current user's 'requested' array
         await updateDoc(userRef, {
-          requested: [...currentUserRequested, userID],
+          requested: [...currentUserRequested, selectedUserId],
         });
 
         // Update the other user's 'requests' array
         await updateDoc(reqUserRef, {
           requests: [...reqUserRequests, user.uid],
         });
-
-        setIsRequested(true);
 
         // Success toast
         toast({
