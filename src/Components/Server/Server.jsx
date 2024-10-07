@@ -392,7 +392,7 @@ const Server = ({ serverId, onSelectServer }) => {
         <ModalContent>
           <ModalHeader>Notification</ModalHeader>
           <ModalBody>
-            <p>The server has not been added yet! Join the server to hang out with bew friends!</p>
+            <p>The server has not been added yet! Join the server to hang out with new friends!</p>
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" onClick={addServer} mx={2}>Add</Button>
