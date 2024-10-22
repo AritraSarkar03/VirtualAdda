@@ -55,19 +55,34 @@ export const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
     e.preventDefault();
     const user = auth.currentUser;
     const channelId = `${Date.now()}_${user.uid}`;
+    
     try {
-      // Add the channel document with the chosen ID
-      await setDoc(doc(db, "channels", channelId), {
+      // Define the common data for both text and video channels
+      const channelData = {
         id: channelId,
         server: serverId,
         name: channelName,
         admin: user.uid,
-        type: channelType, // Include the selected channel type
+        type: channelType,
         createdAt: new Date(),
-      });
+      };
+
+      // Modify the data for text or video channel
+      if (channelType === 'text') {
+        // Add any additional fields specific to text channels (e.g., message-related fields)
+        channelData.isTextChannel = true; // You can add more properties as needed
+      } else if (channelType === 'video') {
+        // Add any additional fields specific to video channels (e.g., call-related fields)
+        channelData.isCallActive = false; // Initialize the call status as inactive
+      }
+
+      // Add the channel document with the chosen ID
+      await setDoc(doc(db, "channels", channelId), channelData);
+
     } catch (e) {
       console.error("Error adding document: ", e);
     }
+    
     onClose();
   };
 
@@ -102,7 +117,6 @@ export const CreateChannelModal = ({ isOpen, onClose, serverId }) => {
     </Modal>
   );
 };
-
 
 export const InvitePeopleModal = ({ isOpen, onClose, serverId }) => {
   const content = `${process.env.REACT_APP_FRONTEND_URL}/server/${serverId}`;
