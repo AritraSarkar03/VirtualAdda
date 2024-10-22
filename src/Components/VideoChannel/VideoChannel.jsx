@@ -1,6 +1,5 @@
 import { Flex, Text, Box, useColorModeValue, VStack, Button, Spinner, Center } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
-// import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase.js';
 import {
   ControlBar,
@@ -11,7 +10,7 @@ import {
   useTracks,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 
 export const MyVideoConference = () => {
   const tracks = useTracks(
@@ -32,11 +31,10 @@ export const MyVideoConference = () => {
 }
 
 const VideoChannel = ({ channel, serverId }) => {
-  const [isCall, setIsCall] = useState(false);
+  const [isCall, setIsCall] = useState(false); // This will be updated based on call status from Firestore
   const bg = useColorModeValue('white', 'gray.600');
 
   const { id } = channel;
-  // const navigate = useNavigate();
   const user = auth.currentUser;
   const userId = user ? user.email : null;
   const roomName = id;
@@ -46,6 +44,7 @@ const VideoChannel = ({ channel, serverId }) => {
   const [error, setError] = useState(null);
   const [hasAccess, setHasAccess] = useState(false);
 
+  // Fetch user roles from Firestore and check if they are admin or moderator
   useEffect(() => {
     const fetchUserRoles = async () => {
       const serverRef = doc(db, 'servers', serverId);
@@ -55,7 +54,6 @@ const VideoChannel = ({ channel, serverId }) => {
         
         if (snapshot.exists()) {
           const { members } = snapshot.data();
-          
           const isAdmin = user.uid === members.admin;
           const isModerator = members.moderator && members.moderator.includes(user.uid);
 
@@ -71,6 +69,7 @@ const VideoChannel = ({ channel, serverId }) => {
     fetchUserRoles();
   }, [serverId, user]);
 
+  // Fetch token from serverless function
   useEffect(() => {
     if (!userId || !roomName) {
       setError('User not authenticated or room name missing.');
@@ -104,6 +103,36 @@ const VideoChannel = ({ channel, serverId }) => {
     fetchToken();
   }, [userId, roomName]);
 
+  // Listen for changes to the call status (isCallActive) in Firestore
+  useEffect(() => {
+    const serverRef = doc(db, 'servers', serverId);
+
+    const unsubscribe = onSnapshot(serverRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const { isCallActive } = docSnapshot.data();
+        setIsCall(isCallActive); // Update isCall based on Firestore
+      } else {
+        console.log("No such document!");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [serverId]);
+
+  // Update Firestore to start a call
+  const joinCall = async () => {
+    const serverRef = doc(db, 'servers', serverId);
+
+    try {
+      // Update Firestore to set isCallActive to true
+      await updateDoc(serverRef, { isCallActive: true });
+      setIsCall(true); // Start the call in the frontend
+    } catch (error) {
+      console.error("Error updating call status: ", error);
+    }
+  };
+
+  // Handle room events (when participants connect/disconnect)
   const handleRoomUpdate = (room) => {
     const participantDisconnected = (participant) => {
       console.log(`${participant.identity} has disconnected`);
@@ -111,7 +140,7 @@ const VideoChannel = ({ channel, serverId }) => {
 
     const roomDisconnected = () => {
       console.log('Room disconnected');
-      setIsCall(false);
+      setIsCall(false); // Reset call status when the room disconnects
     };
 
     const participantConnected = (participant) => {
@@ -127,11 +156,6 @@ const VideoChannel = ({ channel, serverId }) => {
       room.off('roomDisconnected', roomDisconnected);
       room.off('participantConnected', participantConnected);
     };
-  };
-
-  // Start call function
-  const joinCall = () => {
-    setIsCall(true);
   };
 
   if (loading) {
@@ -170,22 +194,34 @@ const VideoChannel = ({ channel, serverId }) => {
         <Flex align="center" justify="center" color="gray.400" flex='1'>
           <Box textAlign="center">
             <Text fontSize="2xl" fontWeight="bold">
-              Click to Join or Start the Call!
+              {hasAccess ? (
+                <>
+                  Click to Join or Start the Call!
+                  <Button
+                    colorScheme={'green'}
+                    color={'white'}
+                    onClick={joinCall} // Start the call
+                    m={'5'}
+                  >
+                    Start Call
+                  </Button>
+                </>
+              ) : isCall ? (
+                <>
+                  A Call is in progress
+                  <Button
+                    colorScheme={'green'}
+                    color={'white'}
+                    onClick={joinCall} // Join the ongoing call
+                    m={'5'}
+                  >
+                    Join Call
+                  </Button>
+                </>
+              ) : (
+                'Please wait! The Call will be started soon!'
+              )}
             </Text>
-            {hasAccess? 
-            <Button
-              colorScheme={'green'}
-              color={'white'}
-              onClick={joinCall} // Call joinCall function to set isCall to true
-              m={'5'}
-            >
-              Start Call
-            </Button>
-            : 
-            <Text fontSize="sm" fontWeight="bold">
-              Please wait! The Call will be started soon!
-            </Text>
-            }
           </Box>
         </Flex>
       )}
